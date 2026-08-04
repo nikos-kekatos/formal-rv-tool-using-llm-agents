@@ -1,0 +1,174 @@
+% =============================================================================
+%  references.bib  --  CPSIoTSec 2026 WiP short paper #2
+%  Trace-level runtime verification of LLM agents: a coverage study on recorded
+%  STAC attack chains + benchmark positioning.
+% =============================================================================
+
+% ---- Agent-attack benchmarks and their lineage -----------------------------
+
+@article{stac2026,
+  title   = {{STAC}: When Innocent Tools Form Dangerous Chains to Jailbreak
+             {LLM} Agents},
+  author  = {Li, Jing-Jing and He, Jianfeng and Shang, Chao and
+             Kulshreshtha, Devang and Xian, Xun and Zhang, Yi and Su, Hang
+             and Swamy, Sandesh and Qi, Yanjun},
+  journal = {arXiv preprint arXiv:2509.25624},
+  year    = {2025}
+}
+
+@inproceedings{agentbench2024,
+  title     = {{AgentBench}: Evaluating {LLM}s as Agents},
+  author    = {Liu, Xiao and Yu, Hao and Zhang, Hanchen and Xu, Yifan and
+               Lei, Xuanyu and Lai, Hanyu and Gu, Yu and Ding, Hangliang and
+               Men, Kaiwen and Yang, Kejuan and others},
+  booktitle = {Int.\ Conf.\ on Learning Representations (ICLR)},
+  year      = {2024}
+}
+
+@article{shadearena2025,
+  title   = {{SHADE-Arena}: Evaluating Sabotage and Monitoring in {LLM} Agents},
+  author  = {Kutasov, Jonathan and Sun, Yuqi and Colognese, Paul and
+             Tong, Teun van der Weij and Sheshadri, Abhay and others},
+  journal = {arXiv preprint arXiv:2506.15740},
+  year    = {2025}
+}
+
+@inproceedings{rjudge2024,
+  title     = {{R-Judge}: Benchmarking Safety Risk Awareness for {LLM} Agents},
+  author    = {Yuan, Tongxin and He, Zhiwei and Dong, Lingzhong and Wang, Yiming
+               and Zhao, Ruijie and Xia, Tian and Xu, Lizhen and Zhou, Binglin
+               and Li, Fangqi and Zhang, Zhuosheng and Wang, Rui and Liu,
+               Gongshen},
+  booktitle = {Findings of the Association for Computational Linguistics: EMNLP},
+  year      = {2024}
+}
+
+@article{agentsafetybench2024,
+  title   = {{Agent-SafetyBench}: Evaluating the Safety of {LLM} Agents},
+  author  = {Zhang, Zhexin and Cui, Shiyao and Lu, Yida and Zhou, Jingzhuo
+             and Yang, Junxiao and Wang, Hongning and Huang, Minlie},
+  journal = {arXiv preprint arXiv:2412.14470},
+  year    = {2024}
+}
+
+@inproceedings{agentdojo2024,
+  title     = {{AgentDojo}: A Dynamic Environment to Evaluate Prompt Injection
+               Attacks and Defenses for {LLM} Agents},
+  author    = {Debenedetti, Edoardo and Zhang, Jie and Balunovi{\'c}, Mislav
+               and Beurer-Kellner, Luca and Fischer, Marc and Tram{\`e}r,
+               Florian},
+  booktitle = {NeurIPS Datasets and Benchmarks Track},
+  year      = {2024}
+}
+
+@inproceedings{toolemu2023,
+  title     = {Identifying the Risks of {LM} Agents with an {LM}-Emulated
+               Sandbox},
+  author    = {Ruan, Yangjun and Dong, Honghua and Wang, Andrew and
+               Pitis, Silviu and Zhou, Yongchao and Ba, Jimmy and Dubois,
+               Yann and Maddison, Chris J. and Hashimoto, Tatsunori},
+  booktitle = {Int.\ Conf.\ on Learning Representations (ICLR)},
+  year      = {2024}
+}
+
+% ---- Agent guardrails / enforcement ----------------------------------------
+
+@inproceedings{agentspec2026,
+  title     = {{AgentSpec}: Customizable Runtime Enforcement for Safe and
+               Reliable {LLM} Agents},
+  author    = {Wang, Haoyu and Poskitt, Christopher M. and Sun, Jun},
+  booktitle = {Proc.\ 48th IEEE/ACM Int.\ Conf.\ on Software Engineering (ICSE)},
+  year      = {2026}
+}
+
+@article{progent2025,
+  title   = {{Progent}: Programmable Privilege Control for {LLM} Agents},
+  author  = {Shi, Tianneng and He, Jingxuan and Wang, Zhun and Li, Hongwei
+             and Wu, Linyu and Guo, Wenbo and Song, Dawn},
+  journal = {arXiv preprint arXiv:2504.11703},
+  year    = {2025}
+}
+
+@article{guardagent2024,
+  title   = {{GuardAgent}: Safeguard {LLM} Agents by a Guard Agent via
+             Knowledge-Enabled Reasoning},
+  author  = {Xiang, Zhen and Zheng, Linzhi and Li, Yanjie and Hong, Junyuan
+             and Li, Qinbin and Xie, Han and Zhang, Jiawei and Xiong, Zidi
+             and Xie, Chulin and Yang, Carl and Song, Dawn and Li, Bo},
+  journal = {arXiv preprint arXiv:2406.09187},
+  year    = {2024}
+}
+
+@article{llamaguard2023,
+  title   = {{Llama Guard}: {LLM}-based Input-Output Safeguard for
+             Human-{AI} Conversations},
+  author  = {Inan, Hakan and Upasani, Kartikeya and Chi, Jianfeng and
+             Rungta, Rashi and Iyer, Krithika and Mao, Yuning and Tontchev,
+             Michael and Hu, Qing and Fuller, Brian and Testuggine, Davide
+             and Khabsa, Madian},
+  journal = {arXiv preprint arXiv:2312.06674},
+  year    = {2023}
+}
+
+% ---- Runtime verification --------------------------------------------------
+
+@inproceedings{rtlola2019,
+  title     = {{StreamLAB}: Stream-Based Monitoring of Cyber-Physical Systems},
+  author    = {Faymonville, Peter and Finkbeiner, Bernd and Schledjewski,
+               Malte and Schwenger, Maximilian and Stenger, Marvin and
+               Tentrup, Leander and Torfah, Hazem},
+  booktitle = {Proc.\ 31st Int.\ Conf.\ Computer Aided Verification (CAV)},
+  year      = {2019}
+}
+
+@inproceedings{tessla2018,
+  title     = {{TeSSLa}: Temporal Stream-Based Specification Language},
+  author    = {Convent, Lukas and Hungar, Sebastian and Leucker, Martin and
+               Scheffel, Torben and Schmitz, Malte and Thoma, Daniel},
+  booktitle = {Proc.\ 21st Brazilian Symp.\ Formal Methods (SBMF)},
+  year      = {2018}
+}
+
+@inproceedings{havelund2018dejavu,
+  title     = {{DejaVu}: A Monitoring Tool for First-Order Temporal Logic},
+  author    = {Havelund, Klaus and Peled, Doron and Ulus, Dogan},
+  booktitle = {Proc.\ 3rd Workshop on Monitoring and Testing of
+               Cyber-Physical Systems (MT-CPS)},
+  year      = {2018}
+}
+
+@inproceedings{monpoly2014,
+  title     = {{MonPoly}: Monitoring Usage-Control Policies},
+  author    = {Basin, David and Klaedtke, Felix and M{\"u}ller, Samuel and
+               Z{\u{a}}linescu, Eugen},
+  booktitle = {Proc.\ 2nd Int.\ Conf.\ Runtime Verification (RV)},
+  year      = {2011}
+}
+
+% ---- Shielding & standards -------------------------------------------------
+
+@inproceedings{shielding2018,
+  title     = {Safe Reinforcement Learning via Shielding},
+  author    = {Alshiekh, Mohammed and Bloem, Roderick and Ehlers, R{\"u}diger
+               and K{\"o}nighofer, Bettina and Niekum, Scott and Topcu, Ufuk},
+  booktitle = {Proc.\ 32nd AAAI Conf.\ on Artificial Intelligence (AAAI)},
+  year      = {2018}
+}
+
+% ---- Hybrid / hierarchical RV for edge-IoT (de-anonymise for camera-ready) ----
+
+@inproceedings{hybridhier2025,
+  title     = {Hybrid Hierarchical Runtime Verification for Edge-IoT Security},
+  author    = {{Author names omitted for double-blind review}},
+  booktitle = {Proc.\ ARES, IWAPS Workshop},
+  year      = {2025},
+  note      = {De-anonymise for camera-ready}
+}
+
+@inproceedings{hiermon2026,
+  title     = {Hierarchical Security Monitoring for Edge-IoT},
+  author    = {{Author names omitted for double-blind review}},
+  booktitle = {Proc.\ IEEE CSR},
+  year      = {2026},
+  note      = {De-anonymise for camera-ready}
+}
