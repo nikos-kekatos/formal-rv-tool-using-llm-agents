@@ -267,7 +267,7 @@ Stream monitors (RTLola~\cite{rtlola2019}, TeSSLa~\cite{tessla2018}) target nume
 signals and complement us for quantitative obligations. A \emph{hybrid} deployment
 can route relational/parametric obligations to MonPoly and purely numeric ones to
 RTLola/TeSSLa, reusing hybrid-hierarchical RV infrastructure that already runs both
-families in edge-IoT settings~\cite{hybridhier2025,hiermon2026}; a
+families in edge-IoT settings~\cite{hybridhier2025,hiermon2026,critisfabric2026}; a
 shield~\cite{shielding2018} gates the pending call on a violation.
 
 % ============================================================================
@@ -825,7 +825,30 @@ event semantics needed to
 benchmark relational, provenance-sensitive and timed policies. Recording these fields is
 cheap at trace-emission time --- every one is available to the harness at the moment a
 tool is called --- and it is what would let the next generation of corpora evaluate this
-class of defence at all.
+class of defence at all. One caveat follows from the census below: fields are necessary
+but not sufficient. A single-turn benchmark cannot express approval however many columns
+its log has, so an enforcement-ready corpus is a claim about the \emph{interaction
+protocol} as much as about the schema.
+
+\paragraph{Why the approvals are absent} The natural objection is that we search for
+approvals by \emph{tool name} and may simply be looking in the wrong place. We therefore
+looked everywhere, and the attrition is itself the result. Two structural facts explain
+it. AgentDojo is \emph{single-turn}: exactly one user message per run
+($6899/6899$), stating a task up front, after which the agent executes autonomously. An
+approval is by definition a response to a \emph{proposed} action, which requires a user
+turn \emph{after} the proposal; the protocol has no such turn, and consistently none of
+its $68$ distinct tools is approval-like. Approvals there are foreclosed by the
+interaction protocol, not merely unrecorded --- no parser can recover them. STAC is
+\emph{multi-turn} (mean $2.6$ user turns, up to five), so approvals \emph{can} occur, and
+approval language does appear: mining the user text rather than tool names raises the
+count twelvefold, from $6/483$ ($1.2\%$) to $70/483$ ($14.5\%$) on a loose keyword match
+and $39/483$ ($8.1\%$) on a strict permission-granting match. But only $3/483$ ($0.6\%$)
+occur \emph{before} the harmful step, which is the only position from which an approval
+could gate anything --- because STAC's attacks work precisely by smuggling the harmful
+step in without returning to the user. Better extraction therefore does not rescue the
+situation: it relocates the shortfall from recording to \emph{protocol and position}. An
+enforcement-ready corpus needs an interaction shape in which approval is expressible, not
+just a field in which it could be written down.
 
 \paragraph{What each field buys} A scorecard says which fields are missing; it does not
 say what capability their absence costs. We therefore ablate the trace itself, masking
