@@ -1,0 +1,1 @@
+setpoint(z,v) AND v > 28 AND NOT ((NOT maint_off()) SINCE maint_on())

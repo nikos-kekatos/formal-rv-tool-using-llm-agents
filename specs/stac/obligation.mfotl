@@ -1,0 +1,1 @@
+(destructive(c) OR teardown(c) OR financial(c) OR export(c) OR actuation(c)) AND NOT (ONCE[0,1000000] approval(c))

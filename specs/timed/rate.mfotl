@@ -1,0 +1,1 @@
+(c <- CNT s; d (ONCE[0,6] actuate(d,s))) AND c >= 3

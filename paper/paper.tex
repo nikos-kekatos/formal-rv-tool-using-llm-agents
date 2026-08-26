@@ -5,14 +5,29 @@
 %  Target venue: CPSIoTSec 2026 (co-located with ACM CCS). WiP short paper.
 %  Build: tectonic main.tex  (fetches acmart).
 % =============================================================================
-\documentclass[sigconf,anonymous,review]{acmart}
+\documentclass[sigconf]{acmart}
 
-\setcopyright{none}
+%% ---------------------------------------------------------------------------
+%% ACM rights block. THE THREE VALUES BELOW MUST COME FROM THE ACM eRights
+%% CONFIRMATION EMAIL FOR SUBMISSION #53 -- do not ship the placeholders.
+%%   \setcopyright{...}  one of acmlicensed / acmcopyright / rightsretained /
+%%                       usgov / cc  (the email states which)
+%%   \acmDOI{...}        the assigned DOI
+%%   \acmISBN{...}       the proceedings ISBN
+%% Until the email arrives, `none' keeps the build clean and prints no false
+%% rights statement.
+\setcopyright{none}          %% TODO camera-ready: value from eRights email
+%\acmDOI{10.1145/nnnnnnn.nnnnnnn}   %% TODO camera-ready: uncomment + real DOI
+%\acmISBN{978-x-xxxx-xxxx-x/YY/MM}  %% TODO camera-ready: uncomment + real ISBN
 \acmConference[CPSIoTSec '26]{Joint Workshop on CPS \& IoT Security and
-  Privacy}{November 2026}{The Hague, Netherlands}
-\acmBooktitle{Joint Workshop on CPS \& IoT Security and Privacy (CPSIoTSec '26)}
-\settopmatter{printacmref=false, printccs=true, printfolios=true}
-\renewcommand\footnotetextcopyrightpermission[1]{}
+  Privacy}{November 15, 2026}{The Hague, Netherlands}
+\acmBooktitle{Joint Workshop on CPS \& IoT Security and Privacy (CPSIoTSec '26),
+  November 15, 2026, The Hague, Netherlands}
+\acmYear{2026}
+%% printacmref=true is the ACM DL default for proceedings; confirmed pending with
+%% the chairs (email_to_chairs.md, question 4). It costs ~10-14 lines at the foot
+%% of column 1 on page 1.
+\settopmatter{printacmref=true, printccs=true, printfolios=true}
 
 \usepackage{booktabs}
 \usepackage{microtype}
@@ -35,9 +50,11 @@
        Verification for Tool-Using LLM Agents: An Offline Same-Benchmark Study
        on AgentDojo and STAC}
 
-% Author list (same as the ARES/IWAPS paper). Non-anonymous; re-add the
-% [anonymous] class option to blind the PDF for a double-blind review round.
-\author{Anastasios Temperekidis}
+% Author list. Camera-ready 2026-08-26: the [anonymous] and [review] class
+% options were removed, so this block now prints. Order: Kekatos first (per
+% author agreement), all others alphabetical by surname. NB this differs from
+% the order registered on HotCRP #53 -- update HotCRP to match before upload.
+\author{Nikolaos Kekatos}
 \affiliation{%
   \institution{Clone Systems}
   \city{Larnaca}\country{Cyprus}}
@@ -57,11 +74,6 @@
   \institution{Aristotle University of Thessaloniki}
   \city{Thessaloniki}\country{Greece}}
 
-\author{Nikolaos Kekatos}
-\affiliation{%
-  \institution{Clone Systems}
-  \city{Larnaca}\country{Cyprus}}
-
 \author{Alexios Lekidis}
 \affiliation{%
   \institution{University of Thessaly}
@@ -76,6 +88,11 @@
 \affiliation{%
   \institution{International Hellenic University}
   \city{Serres}\country{Greece}}
+
+\author{Anastasios Temperekidis}
+\affiliation{%
+  \institution{Clone Systems}
+  \city{Larnaca}\country{Cyprus}}
 
 \keywords{runtime verification, LLM agents, CPS/IoT security, tool-call
           monitoring, MonPoly, past-time temporal logic, agent guardrails}
@@ -113,21 +130,23 @@ reuse. Metric first-order temporal logic (MFOTL) and its monitor \textbf{MonPoly
 offer a declarative alternative for quantified temporal policies over a tool-call
 \emph{trace}. We ask, empirically and offline, how far this formalism reaches on
 recorded agent-attack corpora. We express five generic obligations in MFOTL and
-replay three benchmarks of recorded trajectories --- AgentDojo, STAC, and R-Judge
---- with the real MonPoly engine (no LLM, no API key). RV flags $71.8\%$ of STAC
-chains and detects $61.6\%$ of GPT-4o's \emph{successful} AgentDojo attacks at a
-$31.7\%$ benign firing rate (BFR); we are explicit that here the generic obligations
-reduce largely to \emph{typed-action detection}, since approvals are almost never
-present. The formalism's distinctive value appears with \emph{parametric}
-specifications that quantify over trace data: a payee-provenance obligation cuts
-banking BFR from $44\%$ to $24\%$ and an external-recipient obligation cuts workspace
-BFR from $15\%$ to $11\%$, both statistically significant (exact McNemar
-$p<10^{-10}$). We further show an earliest-warning margin (obligations fire before
-the final harmful call in $51.3\%$ of successful attacks), that the provenance
+replay three benchmarks of recorded trajectories --- AgentDojo, STAC, and R-Judge ---
+with the real MonPoly engine (no LLM, no API key). On GPT-4o's \emph{successful}
+AgentDojo attacks the generic obligations detect $61.6\%$ at a $31.7\%$ benign firing
+rate; we are explicit that at this layer they reduce to \emph{typed-action detection},
+since approvals and timestamps are almost never recorded, and that such a firing rate
+is a triage rate rather than a deployable enforcement point. The formalism's
+distinctive value appears with \emph{parametric} specifications that quantify over
+trace data: payee-provenance and external-recipient obligations cut the benign firing
+rate substantially at a small detection cost, both statistically significant under
+exact McNemar tests. We further show an earliest-warning margin, that the provenance
 predicate is itself an attack surface, and a timed CPS/IoT case study in which
 \emph{elapsed time} alone flips MonPoly's verdict on the same building-actuation
-action. We position MFOTL/MonPoly as a reusable, auditable substrate for agent-trace
-policies --- complementary to, not a replacement for, rule-based enforcement.
+action. A readiness scorecard over the three corpora shows they carry neither the
+timestamps nor the approval history that history-dependent enforcement needs, which
+bounds what any trace-based monitor can currently be shown to do. We position
+MFOTL/MonPoly as a reusable, auditable substrate for agent-trace policies ---
+complementary to, not a replacement for, rule-based enforcement.
 \end{abstract}
 
 \maketitle
@@ -309,6 +328,24 @@ MonPoly log and the obligations to MFOTL, and run the \emph{unmodified MonPoly}
 binary; its firings are the RV result, not a re-implementation. The CPS/IoT policies
 of \S\ref{sec:cps} are likewise evaluated by MonPoly.
 
+\paragraph{Why MonPoly} The obligations we need are not stateless predicates: they
+quantify over trace data (payee identity, recipient domain) \emph{and} bound how far
+back an enabler counts (consent within $24$\,h, three actuations in $6$\,h). That pair
+of requirements --- first-order quantification plus \emph{metric past} --- is exactly
+safe-range MFOTL, and MonPoly is a maintained implementation of it that runs
+\emph{unmodified} on an exported log, so our headline firings are not a
+re-implementation of our own semantics. Among the alternatives surveyed by the runtime
+verification tools list,\footnote{\url{https://runtime-verification.github.io/tools.html}}
+DejaVu~\cite{havelund2018dejavu} decides first-order past-time properties with BDDs but
+offers no metric windows without its timed extension, so the bounded obligations would
+not transfer directly; TeSSLa~\cite{tessla2018} and RTLola are stream-based and strong
+on per-trace numeric computation, but weaker on the first-order joins over unbounded
+domains (arbitrary payee and recipient strings) that the parametric obligations
+require. VeriMon, a formally verified sibling of MonPoly, is a drop-in for the same
+fragment and would be the natural choice where a machine-checked monitor is needed. We
+therefore treat the engine as interchangeable within the fragment and the
+\emph{specification} as the contribution.
+
 \paragraph{Measures} On AgentDojo we use its labels: over attacked runs,
 \emph{detection on successful attacks} (of \textsf{security}$=$true runs, the
 fraction where an obligation fires) and the \emph{benign firing rate} (BFR: of benign
@@ -343,17 +380,36 @@ $28.9\%$ ($1931/6680$). Our RV, applied to the identical runs, fires on $61.6\%$
 have had a flagged call to gate in nearly two-thirds of the attacks that actually got
 through --- driven mostly by the financial, export and actuation obligations
 (teardown never fires: these suites have no teardown tools). The cost is real and we
-report it plainly: the same generic obligations fire on $31.7\%$ ($[24.1,40.4]$) of
-\emph{benign} task runs, because a legitimate task also sends email, moves money and
-changes config. Detection and BFR rise and fall together under \emph{generic}
-specs.
+report it plainly: the same generic obligations fire on $31.7\%$ ($39/123$, Wilson
+$95\%$ $[24.1,40.4]$) of \emph{benign} task runs, because a legitimate task also sends
+email, moves money and changes config. Detection and BFR rise and fall together under
+\emph{generic} specs.
+
+Two caveats belong here rather than in a later limitations block. First, \emph{what
+these numbers do and do not demonstrate}: because AgentDojo and STAC record almost no
+approval events and no timestamps (\S\ref{sec:gap}, Table~\ref{tab:score}), the
+approval antecedent of O1--O5 is vacuously unsatisfied, and a firing therefore depends
+only on the tool's class. At this layer MFOTL is buying declarative uniformity, not
+temporal reasoning: a typed-action keyword rule set would reach the same verdicts. The
+claims that do rest on the formalism are the parametric obligations of
+\S\ref{sec:param}, the timed policies of \S\ref{sec:cps}, and the benchmark scorecard
+of \S\ref{sec:gap}. Second, \emph{a $31.7\%$ BFR is not a deployable operating point}.
+BFR counts runs on which some obligation fires; it is a firing proxy, not a measured
+utility cost, since we never re-execute the blocked task to see whether it would still
+have succeeded. At this rate the generic layer is a triage filter for human review, not
+an enforcement gate, and the benign sample ($123$ runs) is small enough that the
+interval above is wide.
 
 \begin{table}[t]
 \centering
 \caption{AgentDojo recorded runs (GPT-4o, no defence), replayed offline through our
 MFOTL obligations. Detection is on AgentDojo's \textsf{security}=true (successful)
-attacks; BFR is on its benign (\textsf{attack}=none) runs. Per-obligation breakdown in
-Appendix~\ref{app:extended}, Table~\ref{tab:peroblig}.}
+attacks; BFR is on its benign (\textsf{attack}=none) runs. The per-obligation counts
+\emph{overlap} --- one run can trip several obligations --- so they sum to $1524$, more
+than the $1190$ runs detected; the union, not the sum, is the detection figure. Runs
+whose tool-call chain is empty or unparseable are excluded ($96$ of $6899$, all in
+banking). Fuller breakdown in Appendix~\ref{app:extended},
+Table~\ref{tab:peroblig}.}
 \label{tab:agentdojo}
 \renewcommand{\arraystretch}{1.1}
 \setlength{\tabcolsep}{5pt}
@@ -366,6 +422,15 @@ AgentDojo attack-success (no defence)          & $1931/6680 = 28.9\%$ \\
 RV detection on \emph{successful} attacks       & $1190/1931 = 61.6\%$ \\
 RV fires on any attacked run                     & $2426/6680 = 36.3\%$ \\
 RV BFR on benign runs                     & $39/123 = 31.7\%$ \\
+\quad Wilson $95\%$ interval on BFR             & $[24.1,40.4]$ \\
+\midrule
+\multicolumn{2}{l}{\emph{by obligation, on the $1190$ detected (overlapping)}} \\
+\quad destructive without confirmation         & $144$ \\
+\quad teardown without approval                & $0$ \\
+\quad financial without confirmation           & $540$ \\
+\quad export without consent                   & $527$ \\
+\quad actuation without precondition           & $313$ \\
+\quad sum of the five (overlap $>$ union)       & $1524$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -500,9 +565,17 @@ $p=1.5\times10^{-11}$ (workspace).
 \begin{table}[t]
 \centering
 \caption{Parametric vs.\ generic obligations (GPT-4o), with Wilson $95\%$ intervals.
-The parametric rows fire only when a relational/provenance condition over the trace
-holds, so their verdict differs from the same call's typed-action verdict; the
-generic detection numbers elsewhere are typed-action detection.}
+Every row is a \emph{single} obligation on a \emph{single} suite --- not a policy-set
+union, so these rates are not comparable with the pooled run-level figures of
+Appendix~\ref{app:extended}. The parametric rows fire only when a
+relational/provenance condition over the trace holds, so their verdict differs from
+the same call's typed-action verdict; the generic detection numbers elsewhere are
+typed-action detection. Benign denominators: $25$ banking runs ($11/25$ and $6/25$)
+and $46$ workspace runs ($7/46$ and $5/46$), counting every run with a non-empty
+message list. On the identical $46$ workspace runs the generic \emph{union} of
+Table~\ref{tab:suite} fires on $10/46=21.7\%$, against $7/46=15.2\%$ for O4 alone ---
+the clearest illustration that the two tables report different policy sets, not
+different data.}
 \label{tab:param}
 \renewcommand{\arraystretch}{1.15}
 \setlength{\tabcolsep}{4pt}
@@ -579,8 +652,14 @@ response), not message text; (ii) a trusted contact \emph{predate the session};
 (iv) a \emph{new} payee require explicit confirmation. Conditions (i)--(iv) are
 themselves MFOTL obligations over a suitably-typed trace (a trust-domain field, a
 session id, an approval bound to object and amount) --- exactly the schema current
-benchmarks lack (\S\ref{sec:gap}). Provenance integrity is a first-class requirement
-for agent RV, not a canonicalisation detail.
+benchmarks lack (\S\ref{sec:gap}). We state plainly that (i)--(iv) are an
+\emph{untested design proposal}: the corpora carry no trust-domain field, no session
+boundary and no payee-bound approval, so the hardened obligation cannot be evaluated on
+the same runs that produced the $94$--$99\%$ defeat rates, and we make no claim about
+how much of that gap it would close. Those defeat rates are its motivation, not its
+validation; evaluating it needs a corpus with the schema of \S\ref{sec:gap}, which is
+why we propose that schema. Provenance integrity is a first-class requirement for agent
+RV, not a canonicalisation detail.
 
 % ============================================================================
 \section{CPS/IoT Case Study: Timed Temporal Policies}
@@ -631,6 +710,11 @@ T3 precede ($8$\,h)    & execute, re-auth $4$\,h ago      & pass \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+The traces behind Table~\ref{tab:timed} are likewise authored, not recorded: the point
+they establish is that \emph{elapsed time alone} flips MonPoly's verdict on an
+otherwise identical action, which is a property of the specification language, not
+evidence of field accuracy.
 
 \paragraph{Multi-instance building actuation} To show the effect is not a single
 hand-picked pair, we author a $20$-event smart-building trace ($13$ policy-relevant
@@ -741,8 +825,9 @@ MFOTL states and MonPoly checks conditions a stateless per-call predicate cannot
 completed results anchor the security case: a concrete earliest-warning margin
 (preventive on $51.3\%$ of successful AgentDojo attacks, median lead two tool-calls);
 the provenance predicate behind the parametric precision is itself an attack surface,
-flipped $94$--$99\%$ by one planted structured line, which we answer with a hardened
-trusted-provenance specification; and a readiness scorecard showing current benchmarks
+flipped $94$--$99\%$ by one planted structured line, for which we sketch --- but, on
+these corpora, cannot yet evaluate --- a hardened trusted-provenance specification; and
+a readiness scorecard showing current benchmarks
 lack the timestamps, structured state, reversibility typing and approvals
 history-dependent enforcement needs. MFOTL/MonPoly is thus a reusable, auditable
 substrate for quantified, timed agent-trace policies, complementary to rule-based
@@ -881,7 +966,11 @@ timepoints, matching the reference monitor.
 \paragraph{Artifact availability} All evaluation scripts are pure-stdlib Python under
 \texttt{agent-rv-impl/}; together with the MonPoly signature/log/formula files for the
 STAC, building, IoT and timed studies they will be released as supplementary material
-(and, on acceptance, an anonymous public repository), so the full pipeline is
+%% TODO camera-ready: the paper is no longer anonymous, so this must name a real,
+%% resolvable repository. github.com/nikos-kekatos/formal-rv-tool-using-llm-agents
+%% is still PRIVATE as of 2026-08-26 -- make it public and insert the URL, or drop
+%% the clause. Do not ship "anonymous public repository" in a signed paper.
+(and a public repository), so the full pipeline is
 reproducible against the public dataset releases named above.
 
 \paragraph{AgentDojo selection and unflagged successful-attack fraction} Runs are read
@@ -957,7 +1046,14 @@ union (any)    & $61.6$ & $31.7$ & --    & $1.94$ \\
 \begin{table}[htbp]
 \centering
 \caption{Per-suite replay (GPT-4o, no defence): AgentDojo attack-success, RV detection
-on successful attacks, and RV BFR on benign runs.}
+on successful attacks, and RV BFR on benign runs. Detection and BFR here are
+\emph{policy-set unions} over all five generic obligations, so they exceed the
+single-obligation rates of Table~\ref{tab:param} on the same suite: workspace BFR is
+$10/46$ as a union against $7/46$ for O4 alone. This table also counts only runs with
+a non-empty tool-call chain ($96$ banking runs are excluded on that ground, one of them
+benign), whereas Table~\ref{tab:param} counts every run with a non-empty message list:
+banking BFR is $23/24$ here against $23/25$ there, the same numerator over a
+denominator that differs by the one excluded run.}
 \label{tab:suite}
 \renewcommand{\arraystretch}{1.0}
 \setlength{\tabcolsep}{6pt}
@@ -1071,12 +1167,25 @@ the boundary cases. A metamorphic test suite then applies six semantics-preservi
 semantics-changing transformations --- moving an enabler across the window boundary,
 changing an id, reordering, inserting an irrelevant event (verdict must not change),
 duplicating an event (must not change), and boundary shifts --- and MonPoly gives the
-expected verdict on $780/780$ ($100\%$).
+expected verdict on $780/780$ ($100\%$). These perfect scores must be read for what
+they are: AgentTrace-T was authored \emph{against} the same policies MonPoly then
+checks, so $100\%$ measures whether the metric and first-order operators behave as
+specified --- an implementation and semantics check --- and not whether the policies
+catch attacks in the field. No field corpus is involved, and none of the headline
+detection numbers rests on this corpus. We report it because the public corpora lack
+the timestamps and approval events these operators need
+(\S\ref{sec:gap}), so there is otherwise no way to exercise them at all.
 
-\paragraph{Combined parametric ablation} Applying \emph{both} parametric obligations
-together, the banking$+$workspace pooled rates move from generic $80.8\%$ detection /
-$46.5\%$ BFR to $79.8\%$ / $43.7\%$, and the four-suite overall rates from generic
-$61.5\%$ / $31.5\%$ to both-parametric $60.9\%$ / $29.8\%$. Run-level BFR barely moves
+\paragraph{Combined parametric ablation} The rates in this paragraph are
+\emph{run-level policy-set} rates over pooled runs: a run counts as flagged if
+\emph{any} obligation in the set fires on it. Applying \emph{both} parametric
+obligations together, the banking$+$workspace pooled rates move from the union of all
+five generic obligations at $80.8\%$ detection / $46.5\%$ BFR to $79.8\%$ / $43.7\%$,
+and the four-suite overall rates from the same generic union at $61.5\%$ / $31.5\%$ to
+both-parametric $60.9\%$ / $29.8\%$. These pooled figures are unions over the full
+generic set and are therefore \emph{not} comparable with the single-obligation rows of
+Table~\ref{tab:param}: a run that O3 alone misses can still be caught by another
+generic obligation, so the union can exceed any individual obligation's rate. Run-level BFR barely moves
 because benign runs also trip \emph{other} generic obligations; the parametric win is
 at the \emph{action slot} --- the export slot BFR falls $9.9\%\!\to\!7.0\%$ and the
 \texttt{send\_money} slot $44\%\!\to\!24\%$ --- which is where the provenance conjunct

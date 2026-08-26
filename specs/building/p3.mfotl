@@ -1,0 +1,1 @@
+door_unlock(d) AND NOT (ONCE[0,3] badge_auth(d))

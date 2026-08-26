@@ -1,0 +1,1 @@
+compressor_start(z) AND NOT (ONCE[0,3] damper_open(z))
