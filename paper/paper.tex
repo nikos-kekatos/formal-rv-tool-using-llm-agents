@@ -123,31 +123,32 @@
 \begin{document}
 
 \begin{abstract}
-Guardrails for tool-using LLM agents are often \emph{rule-based}: a mostly per-call
-predicate decides each tool call, written per application without a common formal
-semantics, so multi-step, data-dependent policies are hard to state, audit, and
-reuse. Metric first-order temporal logic (MFOTL) and its monitor \textbf{MonPoly}
-offer a declarative alternative for quantified temporal policies over a tool-call
-\emph{trace}. We ask, empirically and offline, how far this formalism reaches on
-recorded agent-attack corpora. We express five generic obligations in MFOTL and
-replay three benchmarks of recorded trajectories --- AgentDojo, STAC, and R-Judge ---
-with the real MonPoly engine (no LLM, no API key). On GPT-4o's \emph{successful}
-AgentDojo attacks the generic obligations detect $70.1\%$ at a $29.3\%$ benign firing
-rate; we are explicit that at this layer they reduce to \emph{typed-action detection},
-since approvals and timestamps are almost never recorded, and that such a firing rate
-is a triage rate rather than a deployable enforcement point. The formalism's
-distinctive value appears with \emph{parametric} specifications that quantify over
-trace data: payee-provenance and external-recipient obligations cut the benign firing
-rate at a small detection cost, and pooled across AgentDojo's model directories --- the
-single-model samples are too small to be conclusive --- the reductions are significant
-under exact McNemar tests. We further show an earliest-warning margin, that the provenance
-predicate is itself an attack surface, and a timed CPS/IoT case study in which
-\emph{elapsed time} alone flips MonPoly's verdict on the same building-actuation
-action. A readiness scorecard over the three corpora shows they carry neither the
-timestamps nor the approval history that history-dependent enforcement needs, which
-bounds what any trace-based monitor can currently be shown to do. We position
-MFOTL/MonPoly as a reusable, auditable substrate for agent-trace policies ---
-complementary to, not a replacement for, rule-based enforcement.
+Guardrails for tool-using LLM agents are typically implemented as application-specific
+rules, which makes multi-step, data-dependent policies hard to specify, audit and reuse.
+We investigate metric first-order temporal logic (MFOTL) and its monitor
+\textbf{MonPoly} as a declarative substrate for such policies, replaying the recorded
+trajectories that AgentDojo, STAC and R-Judge already ship.
+
+Five generic obligations flag $71.8\%$ of STAC chains and $70.1\%$ of GPT-4o's
+\emph{successful} AgentDojo attacks, but also fire on $29.3\%$ of benign runs. Because
+these corpora rarely record approvals and never record timestamps, the generic
+obligations reduce to typed-action detection --- a benchmark-readiness gap for
+history-dependent enforcement, which we quantify across the three corpora and answer with
+a twelve-field enforcement-ready trace schema.
+
+The value of MFOTL becomes clear with \emph{data-parametric} policies: payee-provenance
+and external-recipient obligations substantially reduce benign firing while preserving
+most detection. We then show that the provenance signal is itself attackable --- one
+planted structured line defeats the check on $94$--$99\%$ of the runs it would otherwise
+flag, deceiving no model, only the monitor --- and that binding provenance to the lookup
+that produced it removes the evasion entirely at no cost in detection or benign firing. A
+field ablation locates where each capability is gained, and shows that the sound and
+unsound provenance policies are indistinguishable on clean traces, separating only under
+attack. Finally, metric policies flip verdict on identical actions purely by elapsed time.
+
+These results position MFOTL/MonPoly as an auditable substrate for relational and
+temporal agent policies, complementary to rule-based enforcement, and locate the binding
+constraint in the corpora rather than the formalism.
 \end{abstract}
 
 \maketitle
@@ -191,43 +192,42 @@ STAC publishes $483$ recorded attack chains, and R-Judge~\cite{rjudge2024} ships
 labelled agent records with an IoT subset. We can therefore run a real RV engine
 over the \emph{same} benchmarks the community uses, entirely offline.
 
+\paragraph{Central finding} The value of formal RV for agent traces depends as much on
+what the trace \emph{records} as on what the specification language can \emph{express}.
+On the corpora the community ships, generic temporal obligations collapse into
+risky-action typing, because approvals, timestamps and state transitions are largely
+absent; a keyword rule set would reach the same verdicts. Where relational or timing
+context \emph{is} available, MFOTL buys genuinely more discriminating policies --- and
+those policies then depend on trace content an attacker can write into. Provenance
+integrity and benchmark instrumentation are therefore not side conditions but
+prerequisites for history-dependent agent enforcement. That is the argument this paper
+makes, and each contribution below is a step in it.
+
 \paragraph{Contributions}
 \begin{itemize}
-\item A framing of quantified temporal RV (MFOTL/MonPoly) as a declarative, reusable
-      substrate for agent-trace policies --- complementary to rule-based
-      enforcement --- and a library of five generic obligations evaluated by the
-      \textbf{MonPoly} engine (\S\ref{sec:oblig}), with an offline
-      same-benchmark pipeline (\S\ref{sec:method}).
-\item Results on three corpora with Wilson $95\%$ intervals: $71.8\%$ of STAC chains
-      flagged (MonPoly-confirmed); $70.1\%$ of GPT-4o's \emph{successful} AgentDojo
-      attacks detected at a $29.3\%$ benign firing rate (BFR); the full R-Judge
-      ($571$ records) bounds the structural reach (\S\ref{sec:results}).
-\item Two \emph{parametric} obligations, where the verdict depends
-      on genuine relational reasoning over trace data: a payee-provenance obligation
-      (banking BFR $44\%\!\to\!24\%$) and an external-recipient obligation
-      (workspace BFR $15\%\!\to\!11\%$), not stateless per-call predicates; pooled
-      across all model directories the reductions are statistically significant
-      (exact McNemar $p<10^{-10}$; \S\ref{sec:param}).
-\item A CPS/IoT case study answering the \emph{temporal-complexity} question head-on:
-      \emph{timed} (metric MFOTL) building-actuation policies --- bounded
-      consent, sliding-window rate limit, timed precedence --- run through MonPoly,
-      whose verdict flips on identical actions purely by \emph{elapsed time}
-      (\S\ref{sec:cps}); plus a canonicalisation error analysis over $54$
-      hand-labelled tool$\to$class mappings (\S\ref{sec:canon}).
+\item \textbf{A declarative RV formulation for agent traces.} Five reusable agent
+      obligations in MFOTL, with an offline same-benchmark pipeline that replays the
+      trajectories AgentDojo, STAC and R-Judge already ship through the
+      \emph{unmodified} MonPoly binary, scored against each benchmark's own labels
+      (\S\ref{sec:oblig}, \S\ref{sec:method}).
+\item \textbf{An empirical characterisation of when formal RV adds value.} Generic
+      obligations achieve substantial attack coverage at a substantial benign firing
+      cost, and largely reduce to typed-action detection because current corpora rarely
+      record the history they quantify over. Data-parametric obligations, by contrast,
+      improve discrimination by binding the verdict to prior payee or recipient
+      provenance (banking benign firing $44\%\!\to\!24\%$, exact McNemar $p<10^{-10}$
+      pooled across model directories), and metric policies flip verdict on identical
+      actions purely by elapsed time (\S\ref{sec:results}--\S\ref{sec:cps}).
+\item \textbf{The assurance conditions: what must be observable and trustworthy.}
+      Provenance-based policies introduce a new attack surface --- one planted
+      structured line reverses $94$--$99\%$ of affected verdicts, deceiving no model ---
+      which we close by binding provenance to the lookup that produced it, at no cost in
+      detection or benign firing. A field ablation shows sound and unsound provenance
+      policies are indistinguishable on clean traces. And a readiness audit identifies
+      the trace fields whose absence prevents current benchmarks from evaluating
+      history-dependent enforcement at all, motivating a twelve-field enforcement-ready
+      schema (\S\ref{sec:canon}--\S\ref{sec:gap}).
 \end{itemize}
-\paragraph{Research questions} The study is organised around five questions.
-\textbf{RQ1} (coverage): how many recorded attacks do the obligations flag
-(\S\ref{sec:results}, Tables~\ref{tab:agentdojo}--\ref{tab:stac})?
-\textbf{RQ2} (benign impact): what benign firing rate does that coverage cost
-(\S\ref{sec:results}, \S\ref{sec:param})? \textbf{RQ3} (parametric precision): do
-data-parametric specifications improve discrimination over generic ones
-(\S\ref{sec:param}, Table~\ref{tab:param})? \textbf{RQ4} (temporal/metric
-expressiveness): are there policies whose verdict depends on elapsed time
-(\S\ref{sec:cps}, Table~\ref{tab:timed})? \textbf{RQ5} (robustness and practicality):
-how sensitive is the result to canonicalisation, how fast is the engine, and is the
-provenance signal itself attackable (\S\ref{sec:canon}, \S\ref{sec:prov})?
-We also report an earliest-warning margin (\S\ref{sec:results}) and a benchmark
-readiness scorecard (\S\ref{sec:gap}).
 
 \paragraph{Scope} We measure whether an obligation \emph{fires on a recorded
 trajectory} (detection under post-hoc replay), not live-agent attack success under an
@@ -455,7 +455,7 @@ RV BFR on benign runs                     & $36/123 = 29.3\%$ \\
 \end{tabular}
 \end{table}
 
-\paragraph{Across models (RQ1--RQ2)} The pattern is not GPT-4o-specific: across the
+\paragraph{Across models} The pattern is not GPT-4o-specific: across the
 $22$ base (no-defence) model directories AgentDojo ships, RV detection on successful
 attacks spans $40.9$--$83.3\%$ and BFR $17.6$--$37.4\%$. AgentDojo's own built-in
 defences are not comparable to our offline replay, since they execute the agent
@@ -566,7 +566,7 @@ not the directory, so it is treated as external; a colleague already in the cale
 or address book is not. This cuts the workspace BFR from $15.2\%$ to $10.9\%$ at a
 detection cost of $42.5\%\!\to\!39.2\%$.
 
-\paragraph{Discrimination (RQ3)} The positive likelihood ratio $\mathrm{LR^+}$
+\paragraph{Discrimination} The positive likelihood ratio $\mathrm{LR^+}$
 (detection $/$ BFR) summarises both error rates in one number. Refining the generic
 obligations ($\mathrm{LR^+}=2.40$) to the parametric spec raises it on both suites ---
 payee provenance $1.80\!\to\!2.92$, external recipient $2.79\!\to\!3.61$ --- so the
@@ -624,7 +624,7 @@ prior-state condition --- which a \emph{stateless} per-call predicate cannot dec
 and which MFOTL states declaratively rather than leaving to bespoke stateful code.
 
 % ============================================================================
-\section{Canonicalisation: Accuracy and Sensitivity (RQ5)}
+\section{Canonicalisation: Accuracy and Sensitivity}
 \label{sec:canon}
 
 Detection is only as good as the tool$\to$class typing. A single annotator, blind to
@@ -652,7 +652,7 @@ computed over the monitor's own recorded trace: a payee is trusted iff it appear
 earlier as a structured recipient/sender field. That trace is, however, partly
 attacker-controlled: an injection can plant text that the canonicaliser reads as a
 structured directory entry, so the history the monitor trusts is itself an attack
-surface (RQ5).
+surface.
 
 \paragraph{Poisoning the provenance signal} We test this directly, injecting one line
 naming the attacker recipient into each flagged run's readable context in four framings.
@@ -672,20 +672,60 @@ response), not message text; (ii) a trusted contact \emph{predate the session};
 (iv) a \emph{new} payee require explicit confirmation. Conditions (i)--(iv) are
 themselves MFOTL obligations over a suitably-typed trace (a trust-domain field, a
 session id, an approval bound to object and amount) --- exactly the schema current
-benchmarks lack (\S\ref{sec:gap}). We state plainly that (i)--(iv) are an
-\emph{untested design proposal}: the corpora carry no trust-domain field, no session
-boundary and no payee-bound approval, so the hardened obligation cannot be evaluated on
-the same runs that produced the $94$--$99\%$ defeat rates, and we make no claim about
-how much of that gap it would close. Those defeat rates are its motivation, not its
-validation; evaluating it needs a corpus with the schema of \S\ref{sec:gap}, which is
-why we propose that schema. Provenance integrity is a first-class requirement for agent
+benchmarks lack (\S\ref{sec:gap}).
+
+Conditions (ii)--(iv) need fields the corpora do not carry, so they remain design
+proposals. Condition (i) does not, once stated precisely, and we therefore
+\emph{evaluate} it. Note first that the obvious reading of (i) is vacuous against this
+attacker: the injection is itself a forged tool result, and the workspace obligation
+already restricts accrual to tool messages, yet still flips $99\%$. What discriminates is
+\emph{call--answer binding} --- a genuine tool result answers a lookup the agent itself
+issued, whereas a planted message answers nothing outstanding:
+\[
+\mathit{known}(p)\;\leftrightarrow\;\ooalign{$\bullet$\cr}\bigl(\mathit{lookup}(t)\wedge
+\raisebox{0pt}{$\bigcirc$}\,\mathit{result}(t,p)\bigr).
+\]
+Re-running the same four perturbations against this hardened predicate
+(Table~\ref{tab:harden}) removes the evasion entirely --- structured and quoted framings
+fall from $94.0\%$ to $0.0\%$ on banking and $99.0\%$ to $0.0\%$ on workspace --- at
+\emph{no} cost: detection ($403/576$ banking, $203/518$ workspace) and benign firing
+($6/25$, $5/46$) are unchanged to the run. The fix is not a precision/robustness
+trade-off; the naive predicate was simply reading a field it had no warrant to trust. We
+claim this for the tested attack family only: an attacker who can forge a matching
+lookup call, or compromise the tool being queried, is outside its reach.
+
+\begin{table}[t]
+\centering
+\caption{Hardened provenance against the poisoning attack of \S\ref{sec:prov}: flip rate
+(flagged runs whose verdict reverses to ``known''). Detection and benign firing are
+identical under both predicates, so the hardening costs nothing measurable here.}
+\label{tab:harden}
+\renewcommand{\arraystretch}{1.05}
+\setlength{\tabcolsep}{5pt}
+\footnotesize
+\begin{tabular}{llcc}
+\toprule
+Suite & planted line & naive & hardened \\
+\midrule
+banking ($403$ flagged)   & structured        & $94.0\%$ & $\mathbf{0.0\%}$ \\
+                          & quoted/forwarded  & $94.0\%$ & $\mathbf{0.0\%}$ \\
+                          & free text         & $0.0\%$  & $0.0\%$ \\
+                          & reformatted       & $0.0\%$  & $0.0\%$ \\
+\midrule
+workspace ($203$ flagged) & structured        & $99.0\%$ & $\mathbf{0.0\%}$ \\
+                          & quoted/forwarded  & $99.0\%$ & $\mathbf{0.0\%}$ \\
+                          & free text         & $0.0\%$  & $0.0\%$ \\
+                          & reformatted       & $0.0\%$  & $0.0\%$ \\
+\bottomrule
+\end{tabular}
+\end{table} Provenance integrity is a first-class requirement for agent
 RV, not a canonicalisation detail.
 
 % ============================================================================
 \section{CPS/IoT Case Study: Timed Temporal Policies}
 \label{sec:cps}
 
-This is a proof of \emph{applicability} of MFOTL/MonPoly to CPS/IoT policies (RQ4),
+This is a proof of \emph{applicability} of MFOTL/MonPoly to CPS/IoT policies,
 not a broad security validation on CPS/IoT deployments. We give three evidence points,
 all evaluated verbatim by MonPoly: \emph{timed} (metric) actuation policies, a
 multi-instance building trace, and a real (small) IoT subset.
@@ -758,14 +798,20 @@ clears once a prior consent is present --- a verdict flip on real IoT data the g
 ``grant'' typing (which never fires here) cannot make.
 
 % ============================================================================
-\section{The Benchmark Gap: Recorded Traces Lack the Fields History-Dependent
-         Enforcement Needs}
+\section{Benchmark Readiness for History-Dependent Agent Enforcement}
 \label{sec:gap}
 
-The generic obligations reduce to typed-action detection not because of MFOTL but
-because of the data: the recorded traces omit the fields a history-dependent policy
-quantifies over. A readiness scorecard over the three benchmarks (Table~\ref{tab:score})
-makes this concrete. Explicit \emph{approvals} are almost absent --- $0/6899$ ($0\%$)
+Our experiments expose a broader evaluation problem. Current agent-security benchmarks
+record enough to determine whether an \emph{attack succeeded}, but not enough to
+evaluate many \emph{history-dependent enforcement} policies. We therefore assess the
+three corpora as enforcement datasets, and quantify the availability of the state,
+provenance, approval and timing information a runtime monitor quantifies over. This is
+not a criticism of their design --- they were built to measure attack success and agent
+behaviour, which they do well --- but a statement that they are not, as shipped,
+\emph{enforcement-ready}. The consequence is the phenomenon we reported in
+\S\ref{sec:results}: with the history absent, sophisticated temporal obligations
+necessarily collapse into simple action typing. A readiness scorecard over the three
+benchmarks (Table~\ref{tab:score}) makes this concrete. Explicit \emph{approvals} are almost absent --- $0/6899$ ($0\%$)
 AgentDojo events, $6/483$ ($1.2\%$) STAC chains, $1/571$ ($0.2\%$) R-Judge records.
 Recipient/payee identity is recoverable more often ($38.8\%$/$58.4\%$/$5.8\%$) and
 object identity sometimes ($36.4\%$/$34.2\%$/$47.3\%$), but user-confirmation events
@@ -773,7 +819,52 @@ are rare ($4.6\%$/$16.4\%$/$0\%$). Above all, \emph{none} of the three carries r
 timestamps (only call order), structured state transitions, or reversibility typing.
 The metric and stateful policies that motivate temporal RV (\S\ref{sec:cps}) thus
 cannot be evaluated on these corpora as shipped --- we authored timed logs to exercise
-them.
+them. As a practical consequence we derive a twelve-field \emph{enforcement-ready} trace
+schema --- the twelve fields tabulated in Table~\ref{tab:score} --- being the minimum
+event semantics needed to
+benchmark relational, provenance-sensitive and timed policies. Recording these fields is
+cheap at trace-emission time --- every one is available to the harness at the moment a
+tool is called --- and it is what would let the next generation of corpora evaluate this
+class of defence at all.
+
+\paragraph{What each field buys} A scorecard says which fields are missing; it does not
+say what capability their absence costs. We therefore ablate the trace itself, masking
+fields cumulatively on AgentDojo banking and asking, at each level, which policy class
+remains evaluable and how well it discriminates (Table~\ref{tab:ablation}). Two results
+stand out. First, the levels the corpora \emph{do} support are exactly the ones that buy
+little: recipient identity lifts $\mathrm{LR^+}$ from $1.80$ to $2.92$, and then the
+approval- and timing-dependent levels are simply unevaluable --- \emph{zero}
+approval-typed calls and \emph{zero} timestamped messages across $1545$ runs. Second, and
+less obviously, R1 and R2 are \emph{observationally identical} on clean traces: same
+detection, same benign firing, same $\mathrm{LR^+}$. They separate only under attack, at
+$94\%$ versus $0\%$ evasion. Field availability alone therefore does not tell you whether
+a provenance policy is sound; the binding does, and its value is invisible to any
+evaluation that does not include an adversary. This is the sharper form of the readiness
+argument: a corpus can expose every field a policy names and still be unable to
+distinguish a sound policy from an unsound one.
+
+\begin{table}[t]
+\centering
+\caption{Trace-field ablation on AgentDojo banking. Levels are cumulative; ``poison
+flip'' is the structured-line evasion rate of \S\ref{sec:prov}. R1 and R2 differ only
+under attack.}
+\label{tab:ablation}
+\renewcommand{\arraystretch}{1.05}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{llccc}
+\toprule
+Level & policy class & detect & BFR & flip \\
+\midrule
+R0 action only        & typed-action O1--O5   & $79.2\%$ & $44.0\%$ & --- \\
+R1 $+$ recipient id   & recipient-bound       & $70.0\%$ & $24.0\%$ & $94\%$ \\
+R2 $+$ bound provenance & poison-resistant    & $70.0\%$ & $24.0\%$ & $\mathbf{0\%}$ \\
+\midrule
+R3 $+$ approval binding & approval-bound      & \multicolumn{3}{c}{unevaluable: $0$ approvals$/1545$ runs} \\
+R4 $+$ timestamps/state & metric, transition  & \multicolumn{3}{c}{unevaluable: $0$ timestamped messages} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{table}[t]
 \centering
@@ -849,7 +940,12 @@ flipped $94$--$99\%$ by one planted structured line, for which we sketch --- but
 these corpora, cannot yet evaluate --- a hardened trusted-provenance specification; and
 a readiness scorecard showing current benchmarks
 lack the timestamps, structured state, reversibility typing and approvals
-history-dependent enforcement needs. MFOTL/MonPoly is thus a reusable, auditable
+history-dependent enforcement needs. That last result is the one we would most want
+carried forward: widely used agent-security corpora support attack-level evaluation but
+systematically omit the event semantics required to test history-dependent enforcement.
+It explains why generic temporal policies collapse to action typing on current corpora,
+and it motivates the enforcement-ready trace schema of \S\ref{sec:gap} as the concrete
+thing a future benchmark could adopt. MFOTL/MonPoly is thus a reusable, auditable
 substrate for quantified, timed agent-trace policies, complementary to rule-based
 enforcement and measurable offline on the corpora the community already ships.
 
@@ -981,7 +1077,19 @@ MonPoly's metric \texttt{CNT} aggregation over a sliding $[0,6]$ window.
 (image id \texttt{sha256:6e223674\allowbreak66a8}). It is invoked as
 \texttt{monpoly -sig <s>.sig -formula <f>.mfotl -log <l>.log}; all formulas above pass
 \texttt{monpoly -check} as monitorable. On the STAC export it fires on exactly $347$
-timepoints, matching the reference monitor.
+timepoints, matching the reference monitor. Because both consume the same canonical log,
+that agreement checks our implementation rather than the specification, so we add a
+genuinely independent engine. \textbf{DejaVu}~\cite{havelund2018dejavu} decides
+first-order past-time properties by a different procedure (BDDs over quantified
+past-time LTL). The STAC obligation is untimed past-time first order, so it transfers to
+DejaVu's QTL without weakening; on the same event stream DejaVu reports exactly $347$
+violations. We additionally run \textbf{VeriMon}~\cite{verimon2022}, MonPoly's formally
+verified kernel (\texttt{monpoly -verified}), whose monitoring algorithm is
+machine-checked in Isabelle/HOL: also exactly $347$. So the obligation is agreed by four
+monitors --- our reference implementation, MonPoly's standard kernel, its verified
+kernel, and an independently developed BDD-based engine --- of which the last two make
+the result something stronger than agreement between MonPoly and a checker we wrote
+ourselves: one is a different decision procedure, and one is proved correct.
 
 \paragraph{Artifact availability} All evaluation scripts are pure-stdlib Python under
 \texttt{agent-rv-impl/}; together with the MonPoly signature/log/formula files for the

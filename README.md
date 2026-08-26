@@ -204,3 +204,29 @@ there: `agentdojo_rv.py` counts only runs with a non-empty tool-call chain, whil
 Code and specifications: see `LICENSE`. The paper is under the ACM copyright
 recorded in the proceedings. The benchmark datasets remain under their own
 licences and are not redistributed here.
+
+## New camera-ready experiments
+
+```sh
+cd code/monpoly_experiments
+# hardened provenance vs the poisoning attack (call-answer binding)
+python3 harden_provenance.py --banking $AD/gpt-4o-2024-05-13/banking \
+                            --workspace $AD/gpt-4o-2024-05-13/workspace
+# trace-field ablation: what each field buys (readiness levels R0-R4)
+python3 field_ablation.py --banking $AD/gpt-4o-2024-05-13/banking
+# independent-engine cross-check: DejaVu on the STAC obligation (needs java + scala-cli)
+python3 stac_to_dejavu.py
+```
+
+Cross-engine validation of the STAC obligation, all four agreeing on **347**:
+
+```sh
+# reference monitor
+python3 ../stac_rv.py
+# MonPoly standard kernel, and VeriMon (its Isabelle/HOL-verified kernel)
+python3 ../stac_to_monpoly.py --data ../../data/STAC_benchmark_data.json --out /tmp/mp
+docker run --rm -v /tmp/mp:/d infsec/monpoly           -sig /d/stac.sig -formula /d/obligation.mfotl -log /d/stac.log | grep -c '^@'
+docker run --rm -v /tmp/mp:/d infsec/monpoly -verified -sig /d/stac.sig -formula /d/obligation.mfotl -log /d/stac.log | grep -c '^@'
+# DejaVu (independent BDD-based engine, quantified past-time LTL)
+python3 stac_to_dejavu.py
+```
