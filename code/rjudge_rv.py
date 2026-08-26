@@ -10,7 +10,7 @@ generic obligations, reporting detection on unsafe records and FPR on safe ones 
 a third offline same-benchmark point, with a genuine benign set (unlike STAC).
 """
 import argparse, glob, json, os, re
-from stac_rv import OBLIGATIONS, APPROVAL, hits
+from stac_rv import OBLIGATIONS, APPROVAL, hits, obligation_event
 
 
 def parse_action(a):
@@ -42,7 +42,7 @@ def rv_flags(chain):
         if not tool or any(hits(chain[j][0], APPROVAL) for j in range(i)):
             continue
         for key, pats, _ in OBLIGATIONS:
-            if hits(tool, pats):
+            if obligation_event(tool, pats):
                 fired.add(key)
     return fired
 

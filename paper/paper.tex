@@ -132,7 +132,7 @@ offer a declarative alternative for quantified temporal policies over a tool-cal
 recorded agent-attack corpora. We express five generic obligations in MFOTL and
 replay three benchmarks of recorded trajectories --- AgentDojo, STAC, and R-Judge ---
 with the real MonPoly engine (no LLM, no API key). On GPT-4o's \emph{successful}
-AgentDojo attacks the generic obligations detect $70.2\%$ at a $32.5\%$ benign firing
+AgentDojo attacks the generic obligations detect $70.1\%$ at a $29.3\%$ benign firing
 rate; we are explicit that at this layer they reduce to \emph{typed-action detection},
 since approvals and timestamps are almost never recorded, and that such a firing rate
 is a triage rate rather than a deployable enforcement point. The formalism's
@@ -199,8 +199,8 @@ over the \emph{same} benchmarks the community uses, entirely offline.
       \textbf{MonPoly} engine (\S\ref{sec:oblig}), with an offline
       same-benchmark pipeline (\S\ref{sec:method}).
 \item Results on three corpora with Wilson $95\%$ intervals: $71.8\%$ of STAC chains
-      flagged (MonPoly-confirmed); $70.2\%$ of GPT-4o's \emph{successful} AgentDojo
-      attacks detected at a $32.5\%$ benign firing rate (BFR); the full R-Judge
+      flagged (MonPoly-confirmed); $70.1\%$ of GPT-4o's \emph{successful} AgentDojo
+      attacks detected at a $29.3\%$ benign firing rate (BFR); the full R-Judge
       ($571$ records) bounds the structural reach (\S\ref{sec:results}).
 \item Two \emph{parametric} obligations, where the verdict depends
       on genuine relational reasoning over trace data: a payee-provenance obligation
@@ -361,7 +361,7 @@ intervals are Wilson $95\%$ score intervals.
 benign run is one user task with \emph{no} injection ($\approx\!30$ per suite, so
 $123$ benign GPT-4o runs with a parseable trace); an attacked run is a (user
 task~$\times$~injection~$\times$~attack) combination ($6680$). The benign set is thus
-small, and we report Wilson intervals on every rate (e.g.\ the $32.5\%$ aggregate BFR
+small, and we report Wilson intervals on every rate (e.g.\ the $29.3\%$ aggregate BFR
 has interval $[24.1,40.4]$). The keyword patterns are the ordinary English verbs for
 each class (Appendix~\ref{app:repro}), fixed \emph{before} measuring outcomes and
 never adjusted; the one threshold, the $\blacklozenge$ window, is the most permissive
@@ -394,13 +394,13 @@ precisely the class of error a substring canonicaliser invites and precisely wha
 
 \paragraph{AgentDojo (same-benchmark, offline)} Table~\ref{tab:agentdojo} replays
 all recorded GPT-4o runs (no defence). AgentDojo's own no-defence attack-success is
-$28.9\%$ ($1931/6680$). Our RV, applied to the identical runs, fires on $70.2\%$
+$28.9\%$ ($1931/6680$). Our RV, applied to the identical runs, fires on $70.1\%$
 ($95\%$ CI $[68.1,72.2]$) of the \emph{successful} attacks --- i.e.\ a shield would
 have had a flagged call to gate in nearly two-thirds of the attacks that actually got
 through --- driven mostly by the financial, export and actuation obligations
 (teardown never fires: these suites have no teardown tools). The cost is real and we
-report it plainly: the same generic obligations fire on $32.5\%$ ($40/123$, Wilson
-$95\%$ $[24.9,41.2]$) of \emph{benign} task runs, because a legitimate task also sends
+report it plainly: the same generic obligations fire on $29.3\%$ ($36/123$, Wilson
+$95\%$ $[22.0,37.8]$) of \emph{benign} task runs, because a legitimate task also sends
 email, moves money and changes config. Detection and BFR rise and fall together under
 \emph{generic} specs.
 
@@ -413,7 +413,7 @@ depends only on the tool's class. At this layer MFOTL is buying declarative unif
 temporal reasoning: a typed-action keyword rule set would reach the same verdicts. The
 claims that do rest on the formalism are the parametric obligations of
 \S\ref{sec:param}, the timed policies of \S\ref{sec:cps}, and the benchmark scorecard
-of \S\ref{sec:gap}. Second, \emph{a $32.5\%$ BFR is not a deployable operating point}.
+of \S\ref{sec:gap}. Second, \emph{a $29.3\%$ BFR is not a deployable operating point}.
 BFR counts runs on which some obligation fires; it is a firing proxy, not a measured
 utility cost, since we never re-execute the blocked task to see whether it would still
 have succeeded. At this rate the generic layer is a triage filter for human review, not
@@ -425,8 +425,8 @@ interval above is wide.
 \caption{AgentDojo recorded runs (GPT-4o, no defence), replayed offline through our
 MFOTL obligations. Detection is on AgentDojo's \textsf{security}=true (successful)
 attacks; BFR is on its benign (\textsf{attack}=none) runs. The per-obligation counts
-\emph{overlap} --- one run can trip several obligations --- so they sum to $1699$, more
-than the $1356$ runs detected; the union, not the sum, is the detection figure. Runs
+\emph{overlap} --- one run can trip several obligations --- so they sum to $1677$, more
+than the $1354$ runs detected; the union, not the sum, is the detection figure. Runs
 whose tool-call chain is empty or unparseable are excluded ($96$ of $6899$, all in
 banking). Fuller breakdown in Appendix~\ref{app:extended},
 Table~\ref{tab:peroblig}.}
@@ -439,18 +439,18 @@ Measure & value \\
 \midrule
 Attacked runs                                  & $6680$ \\
 AgentDojo attack-success (no defence)          & $1931/6680 = 28.9\%$ \\
-RV detection on \emph{successful} attacks       & $1356/1931 = 70.2\%$ \\
-RV fires on any attacked run                     & $2593/6680 = 38.8\%$ \\
-RV BFR on benign runs                     & $40/123 = 32.5\%$ \\
-\quad Wilson $95\%$ interval on BFR             & $[24.9,41.2]$ \\
+RV detection on \emph{successful} attacks       & $1354/1931 = 70.1\%$ \\
+RV fires on any attacked run                     & $2292/6680 = 34.3\%$ \\
+RV BFR on benign runs                     & $36/123 = 29.3\%$ \\
+\quad Wilson $95\%$ interval on BFR             & $[22.0,37.8]$ \\
 \midrule
-\multicolumn{2}{l}{\emph{by obligation, on the $1356$ detected (overlapping)}} \\
+\multicolumn{2}{l}{\emph{by obligation, on the $1354$ detected (overlapping)}} \\
 \quad destructive without confirmation         & $307$ \\
 \quad teardown without approval                & $0$ \\
-\quad financial without confirmation           & $540$ \\
+\quad financial without confirmation           & $518$ \\
 \quad export without consent                   & $539$ \\
 \quad actuation without precondition           & $313$ \\
-\quad sum of the five (overlap $>$ union)       & $1699$ \\
+\quad sum of the five (overlap $>$ union)       & $1677$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -464,9 +464,9 @@ defences are not comparable to our offline replay, since they execute the agent
 \paragraph{Earliest warning: when the obligation fires (prevention timing)} A
 detection is only useful for prevention if it arrives before the harmful step. On the
 $1931$ successful GPT-4o AgentDojo attacks, an obligation fires \emph{before} the
-final harmful call (\emph{preventive}) in $1117$ ($57.8\%$), fires only \emph{at} that
-call (\emph{last-moment}) in $239$ ($12.4\%$), and never fires in $575$ ($29.8\%$);
-where it is preventive the median detection lead is two tool-calls (mean $2.53$, max
+final harmful call (\emph{preventive}) in $1012$ ($52.4\%$), fires only \emph{at} that
+call (\emph{last-moment}) in $342$ ($17.7\%$), and never fires in $577$ ($29.9\%$);
+where it is preventive the median detection lead is one tool-call (mean $2.19$, max
 $13$). On STAC the picture inverts by construction --- the corpus \emph{withholds} the
 final harmful step, so the signal concentrates there: $76/483$ ($15.7\%$) preventive,
 $278$ ($57.6\%$) last-moment, $129$ ($26.7\%$) no firing. The earliest-warning margin,
@@ -475,7 +475,7 @@ not a post-hoc residual, is our intervention-timing evidence.
 \paragraph{Per suite: where generic obligations break down} The suite breakdown
 (Appendix~\ref{app:extended}, Table~\ref{tab:suite}) exposes the precision problem
 concretely. In \textbf{banking}, every action is a financial commit, so the generic
-obligations flag $97.7\%$ of attacks \emph{and} $95.8\%$ of benign runs --- near-total
+obligations flag $97.4\%$ of successful attacks \emph{and} $79.2\%$ of benign runs --- near-total
 recall at near-total BFR. Travel, with few money/export actions, is the opposite
 ($16.5\%$ detection, $11.1\%$ BFR). No single generic threshold is right for all
 suites; the domain-specific \emph{parametric} refinements (\S\ref{sec:param}) are what
@@ -568,7 +568,7 @@ detection cost of $42.5\%\!\to\!39.2\%$.
 
 \paragraph{Discrimination (RQ3)} The positive likelihood ratio $\mathrm{LR^+}$
 (detection $/$ BFR) summarises both error rates in one number. Refining the generic
-obligations ($\mathrm{LR^+}=2.16$) to the parametric spec raises it on both suites ---
+obligations ($\mathrm{LR^+}=2.40$) to the parametric spec raises it on both suites ---
 payee provenance $1.80\!\to\!2.92$, external recipient $2.79\!\to\!3.61$ --- so the
 parametric conjunct separates benign from malicious transfers/exports better than
 typed-action detection.
@@ -631,14 +631,14 @@ Detection is only as good as the tool$\to$class typing. A single annotator, blin
 the typing predictions and to any detection outcome, hand-labelled $54$ distinct tool
 names sampled stratified by call frequency and domain across AgentDojo and STAC.
 Against this gold set the keyword typing has micro-averaged precision and recall both
-$0.84$ and single-primary exact-match $83.3\%$ ($45/54$); the residual errors are
+$0.87$ and single-primary exact-match $87.0\%$ ($47/54$); the residual errors are
 systematic (e.g.\ \texttt{send\_\allowbreak channel\_\allowbreak message} missed by
 export, read-only \texttt{get\_*\_transactions} false-typed financial) rather than
 random, and we report rather than tune them (per-class table in
 Appendix~\ref{app:extended}, Table~\ref{tab:canon}). To bound how much this typing
 drives the headline numbers, we re-ran the replays under four tool$\to$class mappings
 (original, corrected, conservative, expanded; Table~\ref{tab:canonsens}): AgentDojo
-detection moves in $[70.2,80.0]\%$ and BFR in $[32.5,47.2]\%$, STAC detection stays in
+detection moves in $[69.0,79.9]\%$ and BFR in $[26.0,43.9]\%$, STAC detection stays in
 $[61.7,73.1]\%$ --- moderately sensitive, with the frozen typing \emph{conservative}
 on AgentDojo (correcting the mapping raises detection, not lowers it).
 
@@ -828,7 +828,7 @@ provably cannot.
 
 \paragraph{Limitations} We measure firing on recorded trajectories, not live-agent
 prevention; an in-loop shield addresses a different question (agent adaptation after
-enforcement) outside our scope. Generic specs have a high BFR ($32.5\%$), and the
+enforcement) outside our scope. Generic specs have a high BFR ($29.3\%$), and the
 parametric refinements that reduce it are evaluated for banking and workspace only.
 STAC lacks preconditions ($6/483$ chains), so its generic obligations reduce to
 typed-action detection; the metric power of MFOTL is exercised in the CPS/IoT study
@@ -838,12 +838,12 @@ timed policies run the real MonPoly engine but on authored logs that isolate the
 timing dependence --- establishing expressiveness, not field prevalence.
 
 \paragraph{Conclusion} Offline on real agent-attack corpora, MonPoly flags $71.8\%$ of STAC chains and
-detects $70.2\%$ of GPT-4o's successful AgentDojo attacks at $32.5\%$ BFR --- numbers
+detects $70.1\%$ of GPT-4o's successful AgentDojo attacks at $29.3\%$ BFR --- numbers
 that mostly reflect risky-action \emph{typing}, since these corpora rarely contain the
 preconditions temporal logic is for. Where data-parametric and timed reasoning applies,
 MFOTL states and MonPoly checks conditions a stateless per-call predicate cannot. Three
 completed results anchor the security case: a concrete earliest-warning margin
-(preventive on $57.8\%$ of successful AgentDojo attacks, median lead two tool-calls);
+(preventive on $52.4\%$ of successful AgentDojo attacks, median lead one tool-call);
 the provenance predicate behind the parametric precision is itself an attack surface,
 flipped $94$--$99\%$ by one planted structured line, for which we sketch --- but, on
 these corpora, cannot yet evaluate --- a hardened trusted-provenance specification; and
@@ -1001,7 +1001,7 @@ tool-call chain are skipped ($96$ for GPT-4o $\Rightarrow 6680$ attacked, $123$
 benign). \texttt{security==True} marks a successful attack, \texttt{utility==True} a
 completed task. For reference we report the \emph{unflagged successful-attack
 fraction}, $(\textsf{successful}\wedge\neg\textsf{RV-fired})/\textsf{attacked}
-=(1931-1356)/6680=8.6\%$; this is a descriptive count of successful attacks the
+=(1931-1354)/6680=8.6\%$; this is a descriptive count of successful attacks the
 monitor did not flag, \emph{not} a measured attack-success rate under an in-loop
 shield (which would require re-running the agent).
 
@@ -1054,11 +1054,11 @@ Obligation & detect \% & BFR \% & unique & $\mathrm{LR^+}$ \\
 \midrule
 O1 destructive & $15.9$ & $4.1$  & $259$ & $3.91$ \\
 O2 teardown    & $0$    & $0$    & $0$   & --     \\
-O3 financial   & $28.0$ & $17.1$ & $245$ & $1.64$ \\
+O3 financial   & $26.8$ & $13.0$ & $243$ & $2.06$ \\
 O4 export      & $27.9$ & $10.6$ & $491$ & $2.64$ \\
-O5 actuation   & $16.2$ & $6.5$  & $18$  & $2.49$ \\
+O5 actuation   & $16.2$ & $6.5$  & $38$  & $2.49$ \\
 \midrule
-union (any)    & $70.2$ & $32.5$ & --    & $2.16$ \\
+union (any)    & $70.1$ & $29.3$ & --    & $2.40$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1073,9 +1073,9 @@ $10/46$ as a union against $7/46$ for O4 alone. This table also counts only runs
 a non-empty tool-call chain ($96$ banking runs are excluded on that ground, one of them
 benign), whereas Table~\ref{tab:param} counts every run with a non-empty message list:
 the banking gap therefore has two causes at once. Under the message-list filter the
-generic union fires on $23/25$ benign banking runs against $23/24$ here, the same
-numerator over the one extra run; Table~\ref{tab:param}'s $11/25$ differs from both
-because it is one obligation rather than the union.}
+generic union fires on $19/25=76.0\%$ of benign banking runs against $19/24=79.2\%$
+here, the same numerator over the one extra run; Table~\ref{tab:param}'s $11/25$ differs
+from both because it is a single obligation rather than the union.}
 \label{tab:suite}
 \renewcommand{\arraystretch}{1.0}
 \setlength{\tabcolsep}{6pt}
@@ -1084,7 +1084,7 @@ because it is one obligation rather than the union.}
 \toprule
 Suite & ASR & RV detect & BFR \\
 \midrule
-banking   & $40.1\%$ & $97.7\%$ & $95.8\%$ \\
+banking   & $40.1\%$ & $97.4\%$ & $79.2\%$ \\
 slack     & $60.9\%$ & $63.9\%$ & $15.4\%$ \\
 travel    & $9.3\%$  & $16.5\%$ & $11.1\%$ \\
 workspace & $19.9\%$ & $62.9\%$ & $21.7\%$ \\
@@ -1121,8 +1121,8 @@ O3 financial   & $0.78$ & $0.78$ & $7/2/2$ \\
 O4 export      & $1.00$ & $0.67$ & $4/0/2$ \\
 O5 actuation   & $0.86$ & $0.86$ & $6/1/1$ \\
 \midrule
-micro-average  & $0.84$ & $0.84$ & F1 $0.84$ \\
-\multicolumn{4}{l}{single-primary exact-match: $45/54 = 83.3\%$} \\
+micro-average  & $0.90$ & $0.84$ & F1 $0.87$ \\
+\multicolumn{4}{l}{single-primary exact-match: $47/54 = 87.0\%$} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1144,10 +1144,10 @@ AgentDojo (GPT-4o); STAC detection is final-step.}
 \toprule
 Mapping & AD detect \% & AD BFR \% & STAC detect \% \\
 \midrule
-original      & $70.2$ & $32.5$ & $71.8$ \\
+original      & $70.1$ & $29.3$ & $71.8$ \\
 corrected     & $79.9$ & $43.9$ & $73.1$ \\
-conservative  & $70.2$ & $32.5$ & $61.7$ \\
-expanded      & $80.0$ & $47.2$ & $73.1$ \\
+conservative  & $69.0$ & $26.0$ & $61.7$ \\
+expanded      & $79.9$ & $43.9$ & $73.1$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1205,16 +1205,19 @@ the timestamps and approval events these operators need
 \emph{run-level policy-set} rates over pooled runs: a run counts as flagged if
 \emph{any} obligation in the set fires on it. Applying \emph{both} parametric
 obligations together, the banking$+$workspace pooled rates move from the union of all
-five generic obligations at $80.8\%$ detection / $46.5\%$ BFR to $79.8\%$ / $43.7\%$,
-and the four-suite overall rates from the same generic union at $70.0\%$ / $32.3\%$ to
-both-parametric $69.5\%$ / $30.6\%$. These pooled figures are unions over the full
+five generic obligations at $80.6\%$ detection / $40.8\%$ BFR to $79.6\%$ / $32.4\%$,
+and the four-suite overall rates from the same generic union at $69.9\%$ / $29.0\%$ to
+both-parametric $69.4\%$ / $24.2\%$. These pooled figures are unions over the full
 generic set and are therefore \emph{not} comparable with the single-obligation rows of
 Table~\ref{tab:param}: a run that O3 alone misses can still be caught by another
 generic obligation, so the union can exceed any individual obligation's rate. Run-level BFR barely moves
 because benign runs also trip \emph{other} generic obligations; the parametric win is
-at the \emph{action slot} --- the export slot BFR falls $9.9\%\!\to\!7.0\%$ and the
-\texttt{send\_money} slot $44\%\!\to\!24\%$ --- which is where the provenance conjunct
-applies.
+at the \emph{action slot}: over the pooled banking$+$workspace benign runs the export
+slot BFR falls $9.9\%\!\to\!7.0\%$ and the \texttt{send\_money} slot
+$22.5\%\!\to\!16.9\%$, which is where the provenance conjunct applies. (Before the
+read-only correction of \S\ref{sec:method} the \texttt{send\_money} slot appeared not to
+move at all, because read-only accessors matching the financial pattern kept the slot lit
+regardless of the refinement.)
 
 \paragraph{Provenance poisoning (detail)} The poisoning experiment
 (\S\ref{sec:prov}) injects, per flagged run, one line naming the attacker

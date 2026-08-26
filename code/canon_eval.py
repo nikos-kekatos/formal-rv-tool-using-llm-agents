@@ -20,7 +20,8 @@ single-primary confusion matrix (primary = first matching class in canonical
 O1..O5 order, else NONE).
 """
 from collections import defaultdict
-from stac_rv import (DESTRUCTIVE, TEARDOWN, FINANCIAL, EXPORT, ACTUATION, hits)
+from stac_rv import (DESTRUCTIVE, TEARDOWN, FINANCIAL, EXPORT, ACTUATION, hits,
+                     obligation_event)
 
 CLASSES = ["DESTR", "TEARD", "FIN", "EXP", "ACT", "NONE"]
 PATS = [("DESTR", DESTRUCTIVE), ("TEARD", TEARDOWN), ("FIN", FINANCIAL),
@@ -64,12 +65,12 @@ GOLD = {
 
 
 def predicted_set(tool):
-    return {c for c, pats in PATS if hits(tool, pats)}
+    return {c for c, pats in PATS if obligation_event(tool, pats)}
 
 
 def primary(tool):
     for c, pats in PATS:
-        if hits(tool, pats):
+        if obligation_event(tool, pats):
             return c
     return "NONE"
 

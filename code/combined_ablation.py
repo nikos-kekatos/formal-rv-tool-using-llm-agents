@@ -27,7 +27,7 @@ attacks the set catches that A misses ("gain vs A", 0 by construction since the
 refinement is a subset). Overall + per suite + banking+workspace pooled.
 """
 import argparse, glob, json, os
-from stac_rv import OBLIGATIONS, APPROVAL, hits, approval_event
+from stac_rv import OBLIGATIONS, APPROVAL, hits, approval_event, obligation_event
 from agentdojo_rv import chain_from_run
 import agentdojo_param as P1        # banking payee-provenance
 import agentdojo_param2 as P2       # workspace external-recipient
@@ -46,7 +46,7 @@ def generic_fired(chain):
         if not tool or any(approval_event(chain[j][0]) for j in range(i)):
             continue
         for key, pats, _ in OBLIGATIONS:
-            if hits(tool, pats):
+            if obligation_event(tool, pats):
                 fired.add(key)
                 if key == FIN and tool != "send_money":
                     fin_other = True

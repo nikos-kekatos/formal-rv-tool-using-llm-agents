@@ -24,7 +24,7 @@ event precedes i. "Final harmful step":
                 (documented fallback; AgentDojo does not tag the injected call).
 """
 import argparse, glob, json, os, statistics
-from stac_rv import OBLIGATIONS, APPROVAL, hits, canonical_chain, fm_id, approval_event
+from stac_rv import OBLIGATIONS, APPROVAL, hits, canonical_chain, fm_id, approval_event, obligation_event
 from agentdojo_rv import chain_from_run
 
 
@@ -35,7 +35,7 @@ def first_fire_idx(chain):
             continue
         if any(approval_event(chain[j][0]) for j in range(i)):
             continue
-        if any(hits(tool, pats) for _k, pats, _d in OBLIGATIONS):
+        if any(obligation_event(tool, pats) for _k, pats, _d in OBLIGATIONS):
             return i
     return None
 
