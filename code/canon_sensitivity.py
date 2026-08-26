@@ -21,7 +21,7 @@ AgentDojo gpt-4o detection on successful attacks + BFR on benign; STAC final-ste
 detection. We report each variant and its delta vs ORIGINAL.
 """
 import argparse, glob, json, os
-from stac_rv import (DESTRUCTIVE, TEARDOWN, FINANCIAL, EXPORT, ACTUATION, APPROVAL,
+from stac_rv import (DESTRUCTIVE, TEARDOWN, FINANCIAL, EXPORT, ACTUATION, APPROVAL, approval_event,
                      hits, canonical_chain)
 from agentdojo_rv import chain_from_run
 from canon_eval import GOLD
@@ -67,7 +67,7 @@ def make_classify(variant):
 
 
 def approval_before(chain, idx):
-    return any(hits(chain[j][0], APPROVAL) for j in range(idx))
+    return any(approval_event(chain[j][0]) for j in range(idx))
 
 
 def any_fires(chain, classify):

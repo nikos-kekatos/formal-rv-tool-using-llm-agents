@@ -20,7 +20,7 @@ over-block on benign task actions is expected and reported, not hidden.
 """
 import argparse, glob, json, os
 from collections import Counter
-from stac_rv import OBLIGATIONS, APPROVAL, hits
+from stac_rv import OBLIGATIONS, APPROVAL, hits, approval_event
 
 
 def chain_from_run(d):
@@ -38,7 +38,7 @@ def rv_flags(chain):
     """Any obligation fires on any call lacking a prior approval (any-step gating)."""
     fired = set()
     for i, (tool, _a) in enumerate(chain):
-        if not tool or any(hits(chain[j][0], APPROVAL) for j in range(i)):
+        if not tool or any(approval_event(chain[j][0]) for j in range(i)):
             continue
         for key, pats, _ in OBLIGATIONS:
             if hits(tool, pats):
