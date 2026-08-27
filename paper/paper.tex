@@ -211,28 +211,23 @@ makes, and each contribution below is a step in it.
 
 \paragraph{Contributions}
 \begin{itemize}
-\item \textbf{A declarative RV formulation for agent traces.} Five reusable agent
-      obligations in MFOTL, with an offline same-benchmark pipeline that replays the
-      trajectories AgentDojo, STAC and R-Judge already ship through the
-      \emph{unmodified} MonPoly binary, scored against each benchmark's own labels
-      (\S\ref{sec:oblig}, \S\ref{sec:method}).
+\item \textbf{A declarative RV formulation and same-benchmark evaluation methodology
+      for tool-using agents.} We map recorded agent trajectories into MFOTL event
+      streams and evaluate reusable generic, parametric and metric obligations using
+      independently implemented runtime monitors, scored against each benchmark's own
+      labels (\S\ref{sec:oblig}, \S\ref{sec:method}).
 \item \textbf{An empirical characterisation of when formal RV adds value.} Generic
-      obligations achieve substantial attack coverage at a substantial benign firing
-      cost, and largely reduce to typed-action detection because current corpora rarely
-      record the history they quantify over. Data-parametric obligations, by contrast,
-      improve discrimination by binding the verdict to prior payee or recipient
-      provenance (banking benign firing $44\%\!\to\!24\%$, exact McNemar $p<10^{-10}$
-      pooled across model directories), and metric policies flip verdict on identical
-      actions purely by elapsed time (\S\ref{sec:results}--\S\ref{sec:gap}).
-\item \textbf{The assurance conditions: what must be observable and trustworthy.}
-      Provenance-based policies introduce a new attack surface: one planted
-      structured line reverses $94$--$99\%$ of affected verdicts, deceiving no model,
-      which we close by binding provenance to the lookup that produced it, at no cost in
-      detection or benign firing. A field ablation shows sound and unsound provenance
-      policies are indistinguishable on clean traces. And a readiness audit identifies
-      the trace fields whose absence prevents current benchmarks from evaluating
-      history-dependent enforcement at all, motivating a twelve-field enforcement-ready
-      schema (\S\ref{sec:canon}--\S\ref{sec:gap}).
+      obligations achieve substantial attack coverage but largely collapse to
+      typed-action detection on existing corpora. Where relational or timing context is
+      available, data-parametric and metric MFOTL policies produce genuinely
+      history-dependent verdicts and improve discrimination over action-only checking
+      (\S\ref{sec:results}--\S\ref{sec:gap}).
+\item \textbf{The assurance conditions for history-dependent enforcement.} We show that
+      trace provenance is itself an attack surface, demonstrate a lookup-bound
+      provenance mechanism that eliminates the tested poisoning attack, and use a field
+      ablation and a three-benchmark readiness audit to identify the information robust
+      history-dependent enforcement requires. This motivates a twelve-field
+      enforcement-ready trace schema (\S\ref{sec:canon}--\S\ref{sec:gap}).
 \end{itemize}
 
 \paragraph{Scope} We measure whether an obligation \emph{fires on a recorded
@@ -283,6 +278,11 @@ shield~\cite{shielding2018} gates the pending call on a violation.
 % ============================================================================
 \section{Obligations and Offline Methodology}
 \label{sec:oblig}
+
+This section fixes what we monitor and how we measure it. We first state the obligations
+as MFOTL formulas over a tool-call trace, then describe the pipeline that turns a
+recorded trajectory into an event stream and the measures reported throughout.
+
 \subsection{Five generic obligations in MFOTL}
 
 We define five reusable obligations, each of the form ``a risky action of a given
@@ -410,6 +410,13 @@ precisely the class of error a substring canonicaliser invites and precisely wha
 \section{Results}
 \label{sec:results}
 
+We report the generic obligations first, then the parametric ones. The contrast between
+the two is the point: the generic layer establishes how much of the recorded attack
+surface typed-action checking reaches at all, and the parametric layer is where a verdict
+starts to depend on the trace's history.
+
+\subsection{Generic obligations on recorded trajectories}
+
 \paragraph{AgentDojo (same-benchmark, offline)} Table~\ref{tab:agentdojo} replays
 \looseness=-1 all recorded GPT-4o runs (no defence). AgentDojo's own no-defence attack-success is
 $28.9\%$ ($1931/6680$). Our RV, applied to the identical runs, fires on $70.1\%$
@@ -422,21 +429,16 @@ $95\%$ $[22.0,37.8]$) of \emph{benign} task runs, because a legitimate task also
 email, moves money and changes config. Detection and BFR rise and fall together under
 \emph{generic} specs.
 
-Two caveats belong here, not in a later limitations block. First, \emph{what
-these numbers do and do not demonstrate}: because AgentDojo and STAC record almost no
-approval events and no timestamps (\S\ref{sec:gap}, Table~\ref{tab:score}), the
-approval antecedent of O1--O5 is vacuously unsatisfied: after the correction noted in
-\S\ref{sec:method}, no AgentDojo tool call matches it at all, and a firing therefore
-depends only on the tool's class. At this layer MFOTL is buying declarative uniformity, not
-temporal reasoning: a typed-action keyword rule set would reach the same verdicts. The
-claims that do rest on the formalism are the parametric obligations of
-\S\ref{sec:param}, the timed policies of \S\ref{sec:cps}, and the benchmark scorecard
-of \S\ref{sec:gap}. Second, \emph{a $29.3\%$ BFR is not a deployable operating point}.
-BFR counts runs on which some obligation fires; it is a firing proxy, not a measured
-utility cost, since we never re-execute the blocked task to see whether it would still
-have succeeded. At this rate the generic layer is a triage filter for human review, not
-an enforcement gate, and the benign sample ($123$ runs) is small enough that the
-interval above is wide.
+Two caveats belong with these numbers. First, they are \emph{typed-action} detection:
+with no approval events in the corpora, the antecedent of O1--O5 is vacuously satisfied
+and a firing depends only on the tool's class, so a keyword rule set would reach the same
+verdicts. Why that is a property of the corpora and not of MFOTL is the subject of
+\S\ref{sec:gap}; the claims that do rest on the formalism are the parametric obligations
+of \S\ref{sec:param} and the timed policies of \S\ref{sec:cps}. Second, \emph{a $29.3\%$
+BFR is not a deployable operating point}: BFR counts runs on which some obligation fires,
+a firing proxy and not a measured utility cost, since we never re-execute the blocked task.
+At this rate the generic layer is a triage filter for human review, not an enforcement
+gate.
 
 \begin{table}[t]
 \centering
@@ -542,7 +544,7 @@ of structural trace-level RV (formal or rule-based alike) and confirms a semanti
 aspect is the necessary complement.
 
 % ============================================================================
-\section{Parametric Obligations: the Centrepiece}
+\subsection{Parametric obligations: where the formalism pays}
 \label{sec:param}
 
 The AgentDojo BFR is not an artefact of RV: it afflicts \emph{any}
@@ -644,6 +646,13 @@ and which MFOTL states declaratively instead of leaving to bespoke stateful code
 % ============================================================================
 \section{Threats to the Verdict: Canonicalisation and Provenance}
 \label{sec:canon}
+
+A verdict is only meaningful if the two things it rests on can be trusted: the typing
+that decides an action's class, and the trace content from which provenance is derived.
+This section attacks both. The first is an accuracy question we measure against a
+hand-labelled gold set; the second turns out to be an adversarial question, because the
+provenance a policy reads is content an attacker can write.
+
 \subsection{Canonicalisation accuracy and sensitivity}
 
 Detection is only as good as the tool$\to$class typing. A single annotator, blind to
