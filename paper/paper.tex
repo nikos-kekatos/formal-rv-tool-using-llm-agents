@@ -809,6 +809,30 @@ situation: it relocates the shortfall from recording to \emph{protocol and posit
 enforcement-ready corpus needs an interaction shape in which approval is expressible, not
 just a field in which it could be written down.
 
+\paragraph{A control case: $\tau$-bench} If approvals were simply hard to record, no
+corpus would have them. We therefore ran the same census over the $1{,}980$ recorded
+trajectories that $\tau$-bench~\cite{taubench2024} ships, a \emph{task} benchmark whose
+system prompt is the domain policy and whose policy requires the agent to obtain user
+confirmation before mutating state. The contrast is stark. $\tau$-bench averages $7.08$
+user turns per trajectory against AgentDojo's $1.00$ and STAC's $2.61$; $88.7\%$ of its
+trajectories contain a mutating call; and while a tool-name search again finds
+\emph{nothing} ($0$ of its $26$ tools is an approval tool, exactly as in AgentDojo),
+$1039/1980 = 52.5\%$ of trajectories contain explicit permission-granting language in a
+user turn positioned \emph{before} the mutating call. Every one of those $1039$ answers a
+preceding assistant turn that made no tool call, i.e.\ they are confirmations of a
+proposal rather than instructions. Against STAC's $0.6\%$ that is a factor of eighty.
+
+Two conclusions follow. The approval shortfall is a property of \emph{attack} corpora
+rather than of agent traces in general, so it is a fixable instrumentation gap and not an
+intrinsic limit; and the fix is already partly available, since on a corpus like
+$\tau$-bench the antecedent of O1--O5 would be genuinely satisfiable and the generic
+obligations would not collapse to action typing. We do not report detection on
+$\tau$-bench because it carries no attack labels: it measures task success, not attack
+success, which is why the detection results here use AgentDojo and STAC. The two are
+complementary, and a corpus with $\tau$-bench's interaction protocol and AgentDojo's
+attack labels is, on this evidence, the single most useful thing the community could
+build.
+
 \paragraph{The contribution of each field} A scorecard says which fields are missing; it does not
 say what capability their absence costs. We therefore ablate the trace itself, masking
 fields cumulatively on AgentDojo banking and asking, at each level, which policy class
@@ -965,9 +989,14 @@ clears once a prior consent is present: a verdict flip on real IoT data the gene
 \section{Discussion and Conclusion}
 \label{sec:concl}
 
-\paragraph{Positioning} What formal RV adds is the combination: trace-level scope,
-formal temporal semantics, data-parametric provenance and offline evaluability in
-\emph{one} declarative substrate. The comparison is with what the cited systems were
+\paragraph{Positioning} MFOTL and MonPoly have already been applied to agent policy
+enforcement: Maris~\cite{maris2026} expresses privacy policies in MFOTL and calls MonPoly
+online, from inside the agent runtime, on three authored applications. Our question is a
+different one, and the difference is the corpus rather than the formalism: what is
+measurable \emph{offline}, on the attack corpora the community already ships, and what
+those corpora cannot support. What formal RV adds in that setting is the combination:
+trace-level scope, formal temporal semantics, data-parametric provenance and offline
+evaluability in \emph{one} declarative substrate. The comparison is with what the cited systems were
 shown to do, not with what they could in principle express.
 AgentDojo~\cite{agentdojo2024}, AgentBench~\cite{agentbench2024} and
 ToolEmu~\cite{toolemu2023} \emph{evaluate} agents, and the guardrails they benchmark are,

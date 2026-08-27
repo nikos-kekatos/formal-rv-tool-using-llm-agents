@@ -230,3 +230,22 @@ docker run --rm -v /tmp/mp:/d infsec/monpoly -verified -sig /d/stac.sig -formula
 # DejaVu (independent BDD-based engine, quantified past-time LTL)
 python3 stac_to_dejavu.py
 ```
+
+### tau-bench control case
+
+tau-bench ships 1,980 recorded trajectories whose system prompt is the domain policy and
+whose policy requires user confirmation before mutating state. It is the control for the
+readiness argument: a corpus where approvals should exist by construction, and do.
+
+```sh
+mkdir -p data/taubench && cd data/taubench
+for f in gpt-4o-airline gpt-4o-retail sonnet-35-new-airline sonnet-35-new-retail; do
+  curl -sLO "https://raw.githubusercontent.com/sierra-research/tau-bench/main/historical_trajectories/$f.json"
+done
+cd ../../code/monpoly_experiments
+python3 approval_census.py --taubench ../../data/taubench
+```
+
+Expected: 7.08 user turns per trajectory, 0 of 26 tools approval-like, and 1039/1980 =
+52.5% of trajectories carrying permission-granting language positioned before the
+mutating call. Compare AgentDojo (1.00 turns, 0%) and STAC (2.61 turns, 0.6%).

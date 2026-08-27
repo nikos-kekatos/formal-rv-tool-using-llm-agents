@@ -79,12 +79,53 @@ def stac(path):
     print(f"  strict AND before the harmful step (gating): {gating}/{n} = {gating/n*100:.1f}%")
     print(f"  => mining text raises the count 12x, then position collapses it to ~0")
 
+
+def taubench(d):
+    """tau-bench historical_trajectories/*.json: 1,980 recorded trajectories whose
+    system prompt IS the domain policy, and whose policy requires the agent to obtain
+    an explicit user confirmation before any mutating call. This is the control case
+    for the readiness argument: a corpus where approvals should exist by construction."""
+    import glob
+    files=sorted(glob.glob(os.path.join(d,"*.json")))
+    n=turns=0; tools=Counter()
+    tool_appr=0; user_strict=0; gating=0; mutating_runs=0
+    MUTATE=("cancel","modify","exchange","return","update","book","send","place","transfer")
+    for f in files:
+        for rec in json.load(open(f)):
+            tr=rec.get("traj") or []
+            n+=1
+            turns+=sum(1 for m in tr if m.get("role")=="user")
+            calls=[]
+            for i,m in enumerate(tr):
+                if m.get("role")=="assistant":
+                    for tc in (m.get("tool_calls") or []):
+                        fn=tc.get("function") or {}
+                        nm=(fn.get("name") if isinstance(fn,dict) else fn) or ""
+                        tools[nm]+=1; calls.append((i,nm))
+            last_mut=max([i for i,nm in calls if any(k in nm.lower() for k in MUTATE)], default=None)
+            if last_mut is not None: mutating_runs+=1
+            if any(TOOLNAME.search(nm) for _i,nm in calls): tool_appr+=1
+            for i,m in enumerate(tr):
+                if m.get("role")!="user": continue
+                if STRICT.search(text(m)):
+                    user_strict+=1
+                    if last_mut is not None and i<last_mut: gating+=1
+                    break
+    print(f"\ntau-bench: {n} trajectories over {len(files)} files, {len(tools)} distinct tools")
+    print(f"  user turns per trajectory                 : {turns/max(1,n):.2f}")
+    print(f"  trajectories with a mutating call         : {mutating_runs}/{n} = {mutating_runs/max(1,n)*100:.1f}%")
+    print(f"  approval by TOOL NAME                     : {tool_appr}/{n} = {tool_appr/max(1,n)*100:.1f}%")
+    print(f"  user text, strict permission-granting     : {user_strict}/{n} = {user_strict/max(1,n)*100:.1f}%")
+    print(f"  strict AND before the last mutating call  : {gating}/{n} = {gating/max(1,n)*100:.1f}%")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--agentdojo"); ap.add_argument("--stac")
+    ap.add_argument("--agentdojo"); ap.add_argument("--stac"); ap.add_argument("--taubench")
     a = ap.parse_args()
     if a.agentdojo: agentdojo(a.agentdojo)
     if a.stac: stac(a.stac)
+    if a.taubench: taubench(a.taubench)
 
 if __name__ == "__main__":
     main()
