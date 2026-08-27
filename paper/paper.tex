@@ -236,8 +236,9 @@ makes, and each contribution below is a step in it.
 
 \paragraph{Scope} We measure whether an obligation \emph{fires on a recorded
 trajectory} (detection under post-hoc replay), not live-agent attack success under an
-in-loop shield. Studying an in-loop shield addresses a \emph{different} question:
-agent adaptation after enforcement: outside the observational scope of this work.
+in-loop shield. Studying an in-loop shield addresses a \emph{different} question
+(agent adaptation after enforcement) and is outside the observational scope of this
+work.
 
 % ============================================================================
 \section{Background: Agent Guardrails and RV}
@@ -267,7 +268,8 @@ replayable offline.
 \paragraph{First-order temporal RV} MonPoly~\cite{monpoly2014} monitors MFOTL over
 timed event streams, quantifying over data;
 DejaVu~\cite{havelund2018dejavu} is a first-order past-time monitor and VeriMon is
-MonPoly's formally verified core: all drop-in for the past-time obligations here.
+MonPoly's formally verified kernel; both support the untimed first-order past-time
+fragment used in our STAC cross-validation (\S\ref{sec:results}).
 Stream monitors (RTLola~\cite{rtlola2019}, TeSSLa~\cite{tessla2018}) target numeric
 signals and complement us for quantitative obligations. A \emph{hybrid} deployment
 can route relational/parametric obligations to MonPoly and purely numeric ones to
@@ -357,7 +359,7 @@ offers no metric windows without its timed extension, so the bounded obligations
 not transfer directly; TeSSLa~\cite{tessla2018} and RTLola are stream-based and strong
 on per-trace numeric computation, but weaker on the first-order joins over unbounded
 domains (arbitrary payee and recipient strings) that the parametric obligations
-require. VeriMon, a formally verified sibling of MonPoly, is a drop-in for the same
+require. VeriMon, MonPoly's formally verified kernel, covers the same
 fragment and would be the natural choice where a machine-checked monitor is needed. We
 therefore treat the engine as interchangeable within the fragment and the
 \emph{specification} as the contribution.
@@ -434,9 +436,9 @@ email, moves money and changes config. Detection and BFR rise and fall together 
 \emph{generic} specs.
 
 Two caveats belong with these numbers. First, they are \emph{typed-action} detection:
-with no approval events in the corpora, the antecedent of O1--O5 is vacuously satisfied
-and a firing depends only on the tool's class, so a keyword rule set would reach the same
-verdicts. Why that is a property of the corpora and not of MFOTL is the subject of
+with no approval events in the corpora the approval condition is never satisfied, so in
+the monitored violation form the negated condition holds throughout and the verdict
+reduces to the tool's action class; a keyword rule set would reach the same verdicts. Why that is a property of the corpora and not of MFOTL is the subject of
 \S\ref{sec:gap}; the claims that do rest on the formalism are the parametric obligations
 of \S\ref{sec:param} and the timed policies of \S\ref{sec:cps}. Second, \emph{a $29.3\%$
 BFR is not a deployable operating point}: BFR counts runs on which some obligation fires,
@@ -895,7 +897,7 @@ reversibility typing are absent from all three (call-order only).}
 \toprule
 Field & AgentDojo & STAC & R-Judge \\
 \midrule
-explicit approval      & $0\%$    & $1.2\%$  & $0.2\%$  \\
+explicit approval      & $0\%$    & $1.2\%$  & $0.4\%$  \\
 recipient/payee id     & $38.8\%$ & $58.4\%$ & $5.8\%$  \\
 object id              & $36.4\%$ & $34.2\%$ & $47.3\%$ \\
 user confirmation      & $4.6\%$  & $16.4\%$ & $0\%$    \\
@@ -974,14 +976,12 @@ they establish is that \emph{elapsed time alone} flips MonPoly's verdict on an
 otherwise identical action, which is a property of the specification language, not
 evidence of field accuracy.
 
-\paragraph{Multi-instance building actuation} To show the effect is not a single
-hand-picked pair, we author a $20$-event smart-building trace ($13$ policy-relevant
-actions) exercising three past-time policies with multiple compliant and violating
-instances each (envelope-plus-maintenance-mode, a timed actuator dependency, and
-badge-authorised access; formulas in Appendix~\ref{app:repro}). MonPoly flags exactly
-the $6$ history-violating instances and clears all $7$ compliant ones; one violation
-is a purely \emph{timed} miss: an enabling \texttt{damper\_open} that fell $4$\,h
-before a $3$\,h window, so the same compressor start is a violation only by timing.
+\paragraph{Multi-instance building actuation} On an authored $20$-event smart-building
+trace ($13$ policy-relevant actions, three past-time policies, formulas in
+Appendix~\ref{app:repro}) MonPoly flags exactly the $6$ history-violating instances and
+clears all $7$ compliant ones. One violation is purely \emph{timed}: an enabling
+\texttt{damper\_open} fell $4$\,h before a $3$\,h window, so the same compressor start is
+a violation only by timing.
 
 \paragraph{R-Judge IoT (real data, small: cannot be enlarged)} The R-Judge IoT
 subset (smart home, traffic dispatch, phone) is \emph{all the labelled IoT agent
@@ -1048,8 +1048,10 @@ history-dependent enforcement needs. That last result is the one we would most w
 carried forward: widely used agent-security corpora support attack-level evaluation but
 systematically omit the event semantics required to test history-dependent enforcement.
 It explains why generic temporal policies collapse to action typing on current corpora,
-and it motivates the enforcement-ready trace schema of \S\ref{sec:gap} as the concrete
-thing a future benchmark could adopt. MFOTL/MonPoly is thus a reusable, auditable
+and it asks two things of a future benchmark rather than one: the enforcement-ready trace
+schema of \S\ref{sec:gap}, and an interaction protocol in which approval can occur at
+all. The $\tau$-bench control shows the second is the binding constraint, since a
+single-turn protocol cannot express approval however many fields its log carries. MFOTL/MonPoly is thus a reusable, auditable
 substrate for quantified, timed agent-trace policies, complementary to rule-based
 enforcement and measurable offline on the corpora the community already ships.
 
