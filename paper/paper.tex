@@ -315,7 +315,6 @@ MFOTL but not in stateless per-call predicates.
 
 % ============================================================================
 \subsection{Replay pipeline and measures}
-\label{sec:method}
 
 \begin{figure}[t]
 \centering
@@ -329,12 +328,12 @@ MFOTL but not in stateless per-call predicates.
 \node[b, right=of m] (v) {Verdict\\+ provenance};
 \draw[->] (r)--(c); \draw[->] (c)--(m); \draw[->] (m)--(v);
 \end{tikzpicture}}
-\looseness=-1 \caption{Offline pipeline. Recorded AgentDojo/STAC/R-Judge traces are canonicalised
-to a typed event stream and checked against MFOTL obligations by MonPoly; verdicts
-with provenance drive the offline analyses (coverage, BFR, earliest-warning,
-provenance integrity). No LLM or agent runs.}
+\looseness=-1 \caption{Offline replay pipeline: recorded trajectories are canonicalised to a typed
+event stream and checked against MFOTL obligations by MonPoly; verdicts are scored
+against each benchmark's own labels. No LLM or agent runs.}
 \label{fig:pipeline}
 \end{figure}
+\label{sec:method}
 
 Figure~\ref{fig:pipeline} shows the offline pipeline.
 \paragraph{Canonicalisation} For each recorded run we build one event stream from
@@ -450,14 +449,11 @@ gate.
 
 \begin{table}[t]
 \centering
-\caption{AgentDojo recorded runs (GPT-4o, no defence), replayed offline through our
-MFOTL obligations. Detection is on AgentDojo's \textsf{security}=true (successful)
-attacks; BFR is on its benign (\textsf{attack}=none) runs. The per-obligation counts
-\emph{overlap} (one run can trip several obligations) so they sum to $1677$, more
-than the $1354$ runs detected; the union, not the sum, is the detection figure. Runs
-whose tool-call chain is empty or unparseable are excluded ($96$ of $6899$, all in
-banking). Fuller breakdown in Appendix~\ref{app:extended},
-Table~\ref{tab:peroblig}.}
+\caption{AgentDojo recorded runs (GPT-4o, no defence) replayed offline. Detection is on
+AgentDojo's \textsf{security}=true attacks, BFR on its benign runs; $96$ of $6899$ runs
+with an empty tool-call chain are excluded. Per-obligation counts overlap and sum to
+$1677$ against $1354$ detected, so the union is the detection figure
+(Appendix~\ref{app:extended}, Table~\ref{tab:peroblig}).}
 \label{tab:agentdojo}
 \renewcommand{\arraystretch}{1.1}
 \setlength{\tabcolsep}{5pt}
@@ -471,14 +467,6 @@ RV detection on \emph{successful} attacks       & $1354/1931 = 70.1\%$ \\
 RV fires on any attacked run                     & $2292/6680 = 34.3\%$ \\
 RV BFR on benign runs                     & $36/123 = 29.3\%$ \\
 \quad Wilson $95\%$ interval on BFR             & $[22.0,37.8]$ \\
-\midrule
-\multicolumn{2}{l}{\emph{by obligation, on the $1354$ detected (overlapping)}} \\
-\quad destructive without confirmation         & $307$ \\
-\quad teardown without approval                & $0$ \\
-\quad financial without confirmation           & $518$ \\
-\quad export without consent                   & $539$ \\
-\quad actuation without precondition           & $313$ \\
-\quad sum of the five (overlap $>$ union)       & $1677$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -509,8 +497,8 @@ recall at near-total BFR. Travel, with few money/export actions, is the opposite
 suites; the domain-specific \emph{parametric} refinements (\S\ref{sec:param}) are what
 recover precision.
 
-\paragraph{STAC (recorded chains, MonPoly)} Table~\ref{tab:stac} replays all
-$483$ STAC chains. Our reference monitor flags the withheld harmful action in
+\paragraph{STAC (recorded chains, MonPoly)} Replaying all
+$483$ STAC chains, our reference monitor flags the withheld harmful action in
 $347/483 = 71.8\%$ ($95\%$ CI $[67.7,75.7]$) of chains, and the \emph{unmodified
 MonPoly engine}, fed the MFOTL obligations and the exported log, fires on
 \emph{exactly} the same $347$: the engine confirms the result. On the
@@ -519,27 +507,6 @@ structurally-intended failure modes the rate is $72.8\%$; the content-semantic m
 structural scope and flagged only via the delivery act. $136$ chains end in an action
 outside the five generic classes (spam-rule edits, calendar changes, in-place
 appends), mapping where new obligations or semantics are needed.
-
-\begin{table}[t]
-\centering
-\caption{STAC recorded chains ($483$) replayed through the same obligations;
-final-step detection. The MonPoly engine reproduces the $347$ firings exactly.}
-\label{tab:stac}
-\renewcommand{\arraystretch}{1.1}
-\setlength{\tabcolsep}{5pt}
-\small
-\begin{tabular}{lc}
-\toprule
-Measure & value \\
-\midrule
-Final-step detection (ref.\ monitor)        & $347/483 = 71.8\%$ \\
-\quad confirmed by \textbf{MonPoly}          & $347$ (exact) \\
-\quad structural-intent modes                 & $249/342 = 72.8\%$ \\
-Out-of-template misses                         & $136$ \\
-Content-semantic (needs semantics)            & $141\ (\approx\!29\%)$ \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \paragraph{R-Judge: the structural limit on a broad safety benchmark} To probe where
 structural RV runs out, we replay the \emph{full} R-Judge~\cite{rjudge2024}: $571$
@@ -612,18 +579,10 @@ $p=1.5\times10^{-11}$ (workspace).
 
 \begin{table}[t]
 \centering
-\caption{Parametric vs.\ generic obligations (GPT-4o), with Wilson $95\%$ intervals.
-Every row is a \emph{single} obligation on a \emph{single} suite, not a policy-set
-union, so these rates are not comparable with the pooled run-level figures of
-Appendix~\ref{app:extended}. The parametric rows fire only when a
-relational/provenance condition over the trace holds, so their verdict differs from
-the same call's typed-action verdict; the generic detection numbers elsewhere are
-typed-action detection. Benign denominators: $25$ banking runs ($11/25$ and $6/25$)
-and $46$ workspace runs ($7/46$ and $5/46$), counting every run with a non-empty
-message list. On the identical $46$ workspace runs the generic \emph{union} of
-Table~\ref{tab:suite} fires on $10/46=21.7\%$, against $7/46=15.2\%$ for O4 alone:
-the clearest illustration that the two tables report different policy sets, not
-different data.}
+\caption{Parametric vs.\ generic obligations (GPT-4o), Wilson $95\%$ intervals. Each row
+is a \emph{single} obligation on a \emph{single} suite, so these rates are not comparable
+with the policy-set unions reported elsewhere; benign denominators are $25$ banking and
+$46$ workspace runs. Appendix~\ref{app:extended} gives the conventions in full.}
 \label{tab:param}
 \renewcommand{\arraystretch}{1.15}
 \setlength{\tabcolsep}{4pt}
@@ -640,16 +599,12 @@ workspace & param.\ ext-recip.\ & $39.2\ [35.1,43.5]$ & $10.9\ [4.7,23.0]$  \\
 \end{tabular}
 \end{table}
 
-\paragraph{What depends on temporal/parametric reasoning} We are explicit about the
-provenance of each number. The generic O1--O5 detection and BFR rates
-(Tables~\ref{tab:agentdojo}--\ref{tab:stac}) are \emph{typed-action detection}: a
-firing depends only on the tool's class, not on trace history, because approvals are
-almost never present in these corpora. The two parametric rows in
-Table~\ref{tab:param}, and every verdict flip in the CPS/IoT study
-(\S\ref{sec:cps}), \emph{do} depend on genuine relational or temporal reasoning: the
-\emph{same} call is allowed or flagged according to a prior-provenance or
-prior-state condition, which a \emph{stateless} per-call predicate cannot decide,
-and which MFOTL states declaratively instead of leaving to bespoke stateful code.
+\paragraph{What depends on temporal reasoning} The generic rates are typed-action
+detection, as \S\ref{sec:results} states. The two parametric rows of
+Table~\ref{tab:param} and every verdict flip in the timed study do depend on genuine
+relational or temporal reasoning: the \emph{same} call is allowed or flagged according to
+a prior-provenance or prior-state condition, which a stateless per-call predicate cannot
+decide and which MFOTL states declaratively instead of in bespoke stateful code.
 
 % ============================================================================
 \section{Threats to Verdict Validity}
@@ -726,31 +681,6 @@ trade-off; the naive predicate was reading a field it had no warrant to trust. W
 claim this for the tested attack family only: an attacker who can forge a matching
 lookup call, or compromise the tool being queried, is outside its reach.
 
-\begin{table}[t]
-\looseness=-1 \centering
-\caption{Hardened provenance against the poisoning attack of \S\ref{sec:prov}: flip rate
-(flagged runs whose verdict reverses to ``known''). Detection and benign firing are
-identical under both predicates, so the hardening costs nothing measurable.}
-\label{tab:harden}
-\renewcommand{\arraystretch}{1.05}
-\setlength{\tabcolsep}{5pt}
-\footnotesize
-\begin{tabular}{llcc}
-\toprule
-Suite & planted line & naive & hardened \\
-\midrule
-banking ($403$ flagged)   & structured        & $94.0\%$ & $\mathbf{0.0\%}$ \\
-                          & quoted/forwarded  & $94.0\%$ & $\mathbf{0.0\%}$ \\
-                          & free text         & $0.0\%$  & $0.0\%$ \\
-                          & reformatted       & $0.0\%$  & $0.0\%$ \\
-\midrule
-workspace ($203$ flagged) & structured        & $99.0\%$ & $\mathbf{0.0\%}$ \\
-                          & quoted/forwarded  & $99.0\%$ & $\mathbf{0.0\%}$ \\
-                          & free text         & $0.0\%$  & $0.0\%$ \\
-                          & reformatted       & $0.0\%$  & $0.0\%$ \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 Provenance integrity is therefore a requirement on the trace, not a detail of
 canonicalisation.
@@ -858,52 +788,6 @@ evaluation that does not include an adversary. This is the sharper form of the r
 argument: a corpus can expose every field a policy names and still be unable to
 distinguish a sound policy from an unsound one.
 
-\begin{table}[t]
-\centering
-\caption{Trace-field ablation on AgentDojo banking. Levels are cumulative; ``poison
-flip'' is the structured-line evasion rate of \S\ref{sec:prov}. R1 and R2 differ only
-under attack.}
-\label{tab:ablation}
-\renewcommand{\arraystretch}{1.05}
-\setlength{\tabcolsep}{4pt}
-\footnotesize
-\begin{tabular}{llccc}
-\toprule
-Level & policy class & detect & BFR & flip \\
-\midrule
-R0 action only     & typed-action    & $79.2\%$ & $44.0\%$ & n/a \\
-R1 $+$ recipient id & recipient-bound & $70.0\%$ & $24.0\%$ & $94\%$ \\
-R2 $+$ provenance   & poison-resistant & $70.0\%$ & $24.0\%$ & $\mathbf{0\%}$ \\
-\midrule
-R3 $+$ approval id & approval-bound  & \multicolumn{3}{c}{unevaluable ($0/1545$ runs)} \\
-R4 $+$ time, state & metric          & \multicolumn{3}{c}{unevaluable ($0$ timestamps)} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{Benchmark readiness for history-dependent enforcement: fraction of
-runs/records exposing each field. Real timestamps, structured state transitions, and
-reversibility typing are absent from all three (call-order only).}
-\label{tab:score}
-\renewcommand{\arraystretch}{1.1}
-\setlength{\tabcolsep}{5pt}
-\small
-\begin{tabular}{lccc}
-\toprule
-Field & AgentDojo & STAC & R-Judge \\
-\midrule
-explicit approval      & $0\%$    & $1.2\%$  & $0.4\%$  \\
-recipient/payee id     & $38.8\%$ & $58.4\%$ & $5.8\%$  \\
-object id              & $36.4\%$ & $34.2\%$ & $47.3\%$ \\
-user confirmation      & $4.6\%$  & $16.4\%$ & $0\%$    \\
-real timestamps        & none     & none     & none     \\
-structured state       & none     & none     & none     \\
-reversibility typing   & none     & none     & none     \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \paragraph{A minimal trace schema} We therefore propose a minimal enforcement-ready
 schema: twelve fields per event: \texttt{timestamp}, \texttt{actor}, \texttt{tool},
@@ -932,23 +816,18 @@ field performance.
 
 \paragraph{Positioning} MFOTL and MonPoly have already been applied to agent policy
 enforcement: Maris~\cite{maris2026} expresses privacy policies in MFOTL and calls MonPoly
-online, from inside the agent runtime, on three authored applications (HospitalGPT,
-OptiGuide and a travel agent) driven by $20$ synthetic queries each. Our question is a
-different one, and the difference is the corpus rather than the formalism: what is
-measurable \emph{offline}, on the attack corpora the community already ships, and what
-those corpora cannot support. That setting is not directly comparable, because those
-applications ship no recorded trajectories to replay, and it is the reason we report on
-$6{,}899$ AgentDojo runs, $483$ STAC chains, $571$ R-Judge records and $1{,}980$
-$\tau$-bench trajectories rather than on authored queries. What formal RV adds in that setting is the combination:
-trace-level scope, formal temporal semantics, data-parametric provenance and offline
-evaluability in \emph{one} declarative substrate. The comparison is with what the cited systems were
-shown to do, not with what they could in principle express.
-AgentDojo~\cite{agentdojo2024}, AgentBench~\cite{agentbench2024} and
-ToolEmu~\cite{toolemu2023} \emph{evaluate} agents, and the guardrails they benchmark are,
-as reported, per-call or rule-based. AgentSpec~\cite{agentspec2026} has a formal rule
-semantics and some history-aware rules ($\circ$), so a determined encoding could reach
-further than Table~\ref{tab:matrix} shows; that table records evaluated configurations,
-not impossibility.
+online from inside the agent runtime, on three authored applications driven by $20$
+synthetic queries each. Our question is different, and the difference is the corpus
+rather than the formalism: what is measurable \emph{offline} on the attack corpora the
+community ships, and what those corpora cannot support. Those applications ship no
+recorded trajectories to replay, which is why we report on $6{,}899$ AgentDojo runs,
+$483$ STAC chains, $571$ R-Judge records and $1{,}980$ $\tau$-bench trajectories. What
+formal RV adds in that setting is the combination: trace-level scope, formal temporal
+semantics, data-parametric provenance and offline evaluability in \emph{one} declarative
+substrate. Table~\ref{tab:matrix} (appendix) records what the cited systems were shown to
+do in their evaluated configurations, not impossibility: AgentSpec~\cite{agentspec2026}
+has a formal rule semantics and some history-aware rules, so a determined encoding could
+reach further than its cells show.
 
 \paragraph{Limitations} We measure firing on recorded trajectories, not live-agent
 prevention; an in-loop shield addresses a different question (agent adaptation after
@@ -961,30 +840,22 @@ more of R-Judge) needs a content checker structural RV does not provide. Finally
 timed policies run the real MonPoly engine but on authored logs that isolate the
 timing dependence: establishing expressiveness, not field prevalence.
 
-\paragraph{Conclusion} Offline on real agent-attack corpora, MonPoly flags $71.8\%$ of STAC chains and
-detects $70.1\%$ of GPT-4o's successful AgentDojo attacks at $29.3\%$ BFR: numbers
-that mostly reflect risky-action \emph{typing}, since these corpora rarely contain the
-preconditions temporal logic is for. Where data-parametric and timed reasoning applies,
-MFOTL states and MonPoly checks conditions a stateless per-call predicate cannot. Four
-completed results anchor the security case: a concrete earliest-warning margin
-(preventive on $52.4\%$ of successful AgentDojo attacks, median lead one tool-call);
-the provenance predicate behind the parametric precision is itself an attack surface,
-flipped $94$--$99\%$ by one planted structured line, which binding provenance to the
-issuing lookup closes completely on the tested attack family, at no cost in detection
-or benign firing; a field ablation showing that the sound and unsound variants are
-indistinguishable except under attack; and
-a readiness scorecard showing current benchmarks
-lack the timestamps, structured state, reversibility typing and approvals
-history-dependent enforcement needs. That last result is the one we would most want
-carried forward: widely used agent-security corpora support attack-level evaluation but
-systematically omit the event semantics required to test history-dependent enforcement.
-It explains why generic temporal policies collapse to action typing on current corpora,
-and it asks two things of a future benchmark rather than one: the enforcement-ready trace
-schema of \S\ref{sec:gap}, and an interaction protocol in which approval can occur at
-all. The $\tau$-bench control shows the second is the binding constraint, since a
-single-turn protocol cannot express approval however many fields its log carries. MFOTL/MonPoly is thus a reusable, auditable
-substrate for quantified, timed agent-trace policies, complementary to rule-based
-enforcement and measurable offline on the corpora the community already ships.
+\paragraph{Conclusion} Offline on real agent-attack corpora, MonPoly flags $71.8\%$ of
+STAC chains and detects $70.1\%$ of GPT-4o's successful AgentDojo attacks at $29.3\%$
+BFR: numbers that mostly reflect risky-action \emph{typing}, since these corpora rarely
+contain the preconditions temporal logic is for. Where data-parametric and timed
+reasoning applies, MFOTL states conditions a stateless per-call predicate cannot decide.
+Four completed results anchor the security case: an earliest-warning margin (preventive
+on $52.4\%$ of successful attacks); a provenance predicate that is itself an attack
+surface, flipped $94$--$99\%$ by one planted line and closed completely, on the tested
+attack family, by binding provenance to the issuing lookup; a field ablation showing the
+sound and unsound variants are indistinguishable except under attack; and a readiness
+audit. That last is the one we would most want carried forward, because it explains the
+first: widely used agent-security corpora support attack-level evaluation but omit the
+event semantics history-dependent enforcement needs. It asks two things of a future
+benchmark, not one: the schema of \S\ref{sec:gap}, and an interaction protocol in which
+approval can occur at all, which the $\tau$-bench control shows is the binding
+constraint.
 
 \balance
 \bibliographystyle{ACM-Reference-Format}
@@ -1231,6 +1102,87 @@ clears once a prior consent is present: a verdict flip on real IoT data the gene
 
 \section{Extended Results and Robustness}
 \label{app:extended}
+\begin{table}[t]
+\centering
+\caption{Benchmark readiness for history-dependent enforcement: fraction of
+runs or records exposing each field.}
+\label{tab:score}
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{5pt}
+\small
+\begin{tabular}{lccc}
+\toprule
+Field & AgentDojo & STAC & R-Judge \\
+\midrule
+explicit approval      & $0\%$    & $1.2\%$  & $0.4\%$  \\
+recipient/payee id     & $38.8\%$ & $58.4\%$ & $5.8\%$  \\
+object id              & $36.4\%$ & $34.2\%$ & $47.3\%$ \\
+user confirmation      & $4.6\%$  & $16.4\%$ & $0\%$    \\
+real timestamps        & none     & none     & none     \\
+structured state       & none     & none     & none     \\
+reversibility typing   & none     & none     & none     \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Reporting conventions} Two conventions explain every apparent mismatch
+between tables. \emph{Policy set}: a union over the five generic obligations is not
+comparable with a single obligation on the same runs, e.g.\ workspace benign firing is
+$10/46$ as a union against $7/46$ for O4 alone. \emph{Run validity}: the aggregate
+replay counts only runs with a non-empty tool-call chain ($96$ banking runs excluded, one
+benign), while the parametric scripts count every run with a non-empty message list,
+which is why banking benign reads $19/24$ in one place and $19/25$ in another with the
+same numerator.
+
+\begin{table}[t]
+\looseness=-1 \centering
+\caption{Hardened provenance against the poisoning attack of \S\ref{sec:prov}: flip rate
+(flagged runs whose verdict reverses to ``known''). Detection and benign firing are
+identical under both predicates, so the hardening costs nothing measurable.}
+\label{tab:harden}
+\renewcommand{\arraystretch}{1.05}
+\setlength{\tabcolsep}{5pt}
+\footnotesize
+\begin{tabular}{llcc}
+\toprule
+Suite & planted line & naive & hardened \\
+\midrule
+banking ($403$ flagged)   & structured        & $94.0\%$ & $\mathbf{0.0\%}$ \\
+                          & quoted/forwarded  & $94.0\%$ & $\mathbf{0.0\%}$ \\
+                          & free text         & $0.0\%$  & $0.0\%$ \\
+                          & reformatted       & $0.0\%$  & $0.0\%$ \\
+\midrule
+workspace ($203$ flagged) & structured        & $99.0\%$ & $\mathbf{0.0\%}$ \\
+                          & quoted/forwarded  & $99.0\%$ & $\mathbf{0.0\%}$ \\
+                          & free text         & $0.0\%$  & $0.0\%$ \\
+                          & reformatted       & $0.0\%$  & $0.0\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Trace-field ablation on AgentDojo banking. Levels are cumulative; ``poison
+flip'' is the structured-line evasion rate of \S\ref{sec:prov}. R1 and R2 differ only
+under attack.}
+\label{tab:ablation}
+\renewcommand{\arraystretch}{1.05}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{llccc}
+\toprule
+Level & policy class & detect & BFR & flip \\
+\midrule
+R0 action only     & typed-action    & $79.2\%$ & $44.0\%$ & n/a \\
+R1 $+$ recipient id & recipient-bound & $70.0\%$ & $24.0\%$ & $94\%$ \\
+R2 $+$ provenance   & poison-resistant & $70.0\%$ & $24.0\%$ & $\mathbf{0\%}$ \\
+\midrule
+R3 $+$ approval id & approval-bound  & \multicolumn{3}{c}{unevaluable ($0/1545$ runs)} \\
+R4 $+$ time, state & metric          & \multicolumn{3}{c}{unevaluable ($0$ timestamps)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 
 \begin{table}[htbp]
 \centering
