@@ -203,7 +203,7 @@ what the trace \emph{records} as on what the specification language can \emph{ex
 On the corpora the community ships, generic temporal obligations collapse into
 risky-action typing, because approvals, timestamps and state transitions are largely
 absent; a keyword rule set would reach the same verdicts. Where relational or timing
-context \emph{is} available, MFOTL buys genuinely more discriminating policies, and
+context \emph{is} available, MFOTL expresses genuinely more discriminating policies, and
 those policies then depend on trace content an attacker can write into. Provenance
 integrity and benchmark instrumentation are therefore not side conditions but
 prerequisites for history-dependent agent enforcement. That is the argument this paper
@@ -544,7 +544,7 @@ of structural trace-level RV (formal or rule-based alike) and confirms a semanti
 aspect is the necessary complement.
 
 % ============================================================================
-\subsection{Parametric obligations: where the formalism pays}
+\subsection{Parametric obligations: relational conditions over trace data}
 \label{sec:param}
 
 The AgentDojo BFR is not an artefact of RV: it afflicts \emph{any}
@@ -763,7 +763,11 @@ not a criticism of their design: they were built to measure attack success and a
 behaviour, which they do well, but a statement that they are not, as shipped,
 \emph{enforcement-ready}. The consequence is the phenomenon we reported in
 \S\ref{sec:results}: with the history absent, sophisticated temporal obligations
-necessarily collapse into simple action typing. A readiness scorecard over the three
+necessarily collapse into simple action typing.
+
+\subsection{The readiness scorecard}
+
+A readiness scorecard over the three
 benchmarks (Table~\ref{tab:score}) makes this concrete. Explicit \emph{approvals} are almost absent: $0/6899$ ($0\%$)
 AgentDojo runs, $6/483$ ($1.2\%$) STAC chains, $2/571$ ($0.4\%$) R-Judge records.
 Recipient/payee identity is recoverable more often ($38.8\%$/$58.4\%$/$5.8\%$) and
@@ -803,7 +807,7 @@ situation: it relocates the shortfall from recording to \emph{protocol and posit
 enforcement-ready corpus needs an interaction shape in which approval is expressible, not
 just a field in which it could be written down.
 
-\paragraph{What each field buys} A scorecard says which fields are missing; it does not
+\paragraph{The contribution of each field} A scorecard says which fields are missing; it does not
 say what capability their absence costs. We therefore ablate the trace itself, masking
 fields cumulatively on AgentDojo banking and asking, at each level, which policy class
 remains evaluable and how well it discriminates (Table~\ref{tab:ablation}). Two results
