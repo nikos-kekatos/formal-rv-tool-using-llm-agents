@@ -30,6 +30,8 @@
 \settopmatter{printacmref=true, printccs=true, printfolios=true}
 
 \usepackage{booktabs}
+%% XeTeX supports protrusion only; font expansion is unavailable here, so short
+%% paragraph-final lines are handled per-paragraph with \looseness where needed.
 \usepackage{microtype}
 \usepackage{amsmath}
 \let\Bbbk\relax
@@ -127,9 +129,11 @@
 \begin{abstract}
 Guardrails for tool-using LLM agents are typically implemented as application-specific
 rules, which makes multi-step, data-dependent policies hard to specify, audit and reuse.
-We investigate metric first-order temporal logic (MFOTL) and its monitor
-\textbf{MonPoly} as a declarative substrate for such policies, replaying the recorded
-trajectories that AgentDojo, STAC and R-Judge already ship.
+We investigate metric first-order temporal logic (MFOTL) as a declarative substrate
+for such policies, replaying the recorded trajectories that AgentDojo, STAC and R-Judge
+already ship through the unmodified MonPoly engine. The STAC verdict is agreed by four
+monitors: our reference implementation, MonPoly, its Isabelle/HOL-verified kernel
+VeriMon, and the independently developed DejaVu, whose decision procedure differs.
 
 Five generic obligations flag $71.8\%$ of STAC chains and $70.1\%$ of GPT-4o's
 \emph{successful} AgentDojo attacks, but also fire on $29.3\%$ of benign runs. Because
@@ -181,7 +185,7 @@ exact shape of an agent obligation (``$\forall$ object $o$: an irreversible acti
 on $o$ requires a prior approval for $o$''). This makes metric first-order temporal
 logic (MFOTL) and its monitor MonPoly a natural \emph{declarative substrate} for
 such policies: quantified over data, with a formal
-semantics and a reusable, independently-maintained engine, rather than bespoke
+semantics and a reusable, independently-maintained engine, not bespoke
 per-application code: complementary to rule-based enforcement, not a claim that
 rules cannot do it.
 
@@ -272,7 +276,7 @@ RTLola/TeSSLa, reusing hybrid-hierarchical RV infrastructure that already runs b
 families in edge-IoT settings~\cite{hybridhier2025,hiermon2026,critisfabric2026};
 companion work of ours applies mission-level runtime assurance to LLM-assisted swarms
 over a verification-aware fabric~\cite{mesasswarm2026}, where the traces are generated in
-simulation rather than recorded: the complementary setting to the offline replay
+simulation, not recorded: the complementary setting to the offline replay
 studied here; a
 shield~\cite{shielding2018} gates the pending call on a violation.
 
@@ -282,7 +286,7 @@ shield~\cite{shielding2018} gates the pending call on a violation.
 
 We define five reusable obligations, each of the form ``a risky action of a given
 class requires a matching precondition (approval/consent/confirmation) earlier in
-the trace,'' chosen by action \emph{semantics} rather than any benchmark's tool
+the trace,'' chosen by action \emph{semantics}, not by any benchmark's tool
 names: \textbf{O1}~irreversible/destructive (delete, cancel, purge),
 \textbf{O2}~protection teardown (disable, unlock, add auto-delete rule),
 \textbf{O3}~financial commit (transfer, pay, schedule transaction),
@@ -368,7 +372,7 @@ benign run is one user task with \emph{no} injection ($\approx\!30$ per suite, s
 $123$ benign GPT-4o runs with a parseable trace); an attacked run is a (user
 task~$\times$~injection~$\times$~attack) combination ($6680$). The benign set is thus
 small, and we report Wilson intervals on every rate (e.g.\ the $29.3\%$ aggregate BFR
-has interval $[24.1,40.4]$). The keyword patterns are the ordinary English verbs for
+has interval $[22.0,37.8]$). The keyword patterns are the ordinary English verbs for
 each class (Appendix~\ref{app:repro}), fixed \emph{before} measuring outcomes and
 never adjusted; the one threshold, the $\blacklozenge$ window, is the most permissive
 choice (unbounded past), so a firing is never a tight-window artefact. ``Detection''
@@ -388,9 +392,16 @@ now spelled \texttt{acknowledge}, and no read-only accessor (prefix \texttt{get\
 \texttt{query\_}) can constitute an approval event. The correction \emph{raises} the
 reported rates: AgentDojo detection $61.6\%\!\to\!70.2\%$, Slack-suite detection
 $40.3\%\!\to\!63.9\%$, BFR $31.7\%\!\to\!32.5\%$, so the pre-correction figures
-understated the method rather than inflating it, and every number reported here is from
-the corrected set. STAC and R-Judge are unaffected: no tool name in either corpus
-collides. We report the correction rather than silently re-freezing, because it is
+understated the method; they did not inflate it. The same read-only guard then had to
+be applied to \emph{action typing} as well, because the financial pattern
+\texttt{transaction} was matching the read-only \texttt{get\_most\_recent\_transactions}
+and \texttt{get\_scheduled\_transactions}: retrieving records is not a value transfer,
+and the hand-labelled gold set of \S\ref{sec:canon} marks all twenty read-only accessors
+\textsf{NONE}. That second correction moved detection to $70.1\%$ and benign firing to
+$29.3\%$, and those are the figures reported throughout; it also raised typing precision
+(micro $0.84\!\to\!0.90$) and made the payee ablation discriminate at all, since the
+read-only matches had previously kept the refined financial slot permanently lit. STAC
+and R-Judge are unaffected: no tool name in either corpus collides. We report the correction instead of silently re-freezing, because it is
 precisely the class of error a substring canonicaliser invites and precisely what
 \S\ref{sec:canon} sets out to measure.
 
@@ -401,8 +412,8 @@ precisely the class of error a substring canonicaliser invites and precisely wha
 \paragraph{AgentDojo (same-benchmark, offline)} Table~\ref{tab:agentdojo} replays
 all recorded GPT-4o runs (no defence). AgentDojo's own no-defence attack-success is
 $28.9\%$ ($1931/6680$). Our RV, applied to the identical runs, fires on $70.1\%$
-($95\%$ CI $[68.1,72.2]$) of the \emph{successful} attacks: i.e.\ a shield would
-have had a flagged call to gate in nearly two-thirds of the attacks that actually got
+($95\%$ CI $[68.0,72.1]$) of the \emph{successful} attacks: i.e.\ a shield would
+have had a flagged call to gate in just over seven in ten of the attacks that actually got
 through: driven mostly by the financial, export and actuation obligations
 (teardown never fires: these suites have no teardown tools). The cost is real and we
 report it plainly: the same generic obligations fire on $29.3\%$ ($36/123$, Wilson
@@ -410,7 +421,7 @@ $95\%$ $[22.0,37.8]$) of \emph{benign} task runs, because a legitimate task also
 email, moves money and changes config. Detection and BFR rise and fall together under
 \emph{generic} specs.
 
-Two caveats belong here rather than in a later limitations block. First, \emph{what
+Two caveats belong here, not in a later limitations block. First, \emph{what
 these numbers do and do not demonstrate}: because AgentDojo and STAC record almost no
 approval events and no timestamps (\S\ref{sec:gap}, Table~\ref{tab:score}), the
 approval antecedent of O1--O5 is vacuously unsatisfied: after the correction noted in
@@ -463,7 +474,7 @@ RV BFR on benign runs                     & $36/123 = 29.3\%$ \\
 
 \paragraph{Across models} The pattern is not GPT-4o-specific: across the
 $22$ base (no-defence) model directories AgentDojo ships, RV detection on successful
-attacks spans $40.9$--$83.3\%$ and BFR $17.6$--$37.4\%$. AgentDojo's own built-in
+attacks spans $48.4$--$91.7\%$ and BFR $16.7$--$34.8\%$. AgentDojo's own built-in
 defences are not comparable to our offline replay, since they execute the agent
 \emph{with} the defence in the loop, whereas we never re-run the agent.
 
@@ -474,8 +485,8 @@ final harmful call (\emph{preventive}) in $1012$ ($52.4\%$), fires only \emph{at
 call (\emph{last-moment}) in $342$ ($17.7\%$), and never fires in $577$ ($29.9\%$);
 where it is preventive the median detection lead is one tool-call (mean $2.19$, max
 $13$). On STAC the picture inverts by construction: the corpus \emph{withholds} the
-final harmful step, so the signal concentrates there: $76/483$ ($15.7\%$) preventive,
-$278$ ($57.6\%$) last-moment, $129$ ($26.7\%$) no firing. The earliest-warning margin,
+final harmful step, so the signal concentrates there: $57/483$ ($11.8\%$) preventive,
+$297$ ($61.5\%$) last-moment, $129$ ($26.7\%$) no firing. The earliest-warning margin,
 not a post-hoc residual, is our intervention-timing evidence.
 
 \paragraph{Per suite: where generic obligations break down} The suite breakdown
@@ -544,7 +555,7 @@ past provenance. We are careful here: a \emph{stateful} rule engine could of cou
 compute the same condition procedurally, by accumulating seen payees in bespoke code.
 The advantage we claim is therefore not exclusive computability but \emph{declarative
 specification}: one formula, with formal temporal/relational semantics, evaluated
-by a reusable, independently-maintained engine, and hence auditable: rather than
+by a reusable, independently-maintained engine, and hence auditable, in place of
 per-application imperative state management. We implement two and measure them
 (Table~\ref{tab:param}).
 
@@ -627,7 +638,7 @@ Table~\ref{tab:param}, and every verdict flip in the CPS/IoT study
 (\S\ref{sec:cps}), \emph{do} depend on genuine relational or temporal reasoning: the
 \emph{same} call is allowed or flagged according to a prior-provenance or
 prior-state condition, which a \emph{stateless} per-call predicate cannot decide,
-and which MFOTL states declaratively rather than leaving to bespoke stateful code.
+and which MFOTL states declaratively instead of leaving to bespoke stateful code.
 
 % ============================================================================
 \section{Canonicalisation: Accuracy and Sensitivity}
@@ -636,11 +647,12 @@ and which MFOTL states declaratively rather than leaving to bespoke stateful cod
 Detection is only as good as the tool$\to$class typing. A single annotator, blind to
 the typing predictions and to any detection outcome, hand-labelled $54$ distinct tool
 names sampled stratified by call frequency and domain across AgentDojo and STAC.
-Against this gold set the keyword typing has micro-averaged precision and recall both
-$0.87$ and single-primary exact-match $87.0\%$ ($47/54$); the residual errors are
-systematic (e.g.\ \texttt{send\_\allowbreak channel\_\allowbreak message} missed by
-export, read-only \texttt{get\_*\_transactions} false-typed financial) rather than
-random, and we report rather than tune them (per-class table in
+Against this gold set the keyword typing has micro-averaged precision $0.90$, recall
+$0.84$, F1 $0.87$, and single-primary exact-match $87.0\%$ ($47/54$); the residual errors are
+systematic (e.g.\ \texttt{send\_\allowbreak channel\_\allowbreak message} and
+\texttt{send\_\allowbreak direct\_\allowbreak message} missed by export,
+\texttt{reserve\_hotel} and \texttt{reserve\_restaurant} missed by financial) not
+random, and we report them without tuning (per-class table in
 Appendix~\ref{app:extended}, Table~\ref{tab:canon}). To bound how much this typing
 drives the headline numbers, we re-ran the replays under four tool$\to$class mappings
 (original, corrected, conservative, expanded; Table~\ref{tab:canonsens}): AgentDojo
@@ -653,7 +665,7 @@ on AgentDojo (correcting the mapping raises detection, not lowers it).
 \label{sec:prov}
 
 The parametric obligations of \S\ref{sec:param} draw their power from a
-\emph{provenance} predicate: \textsf{known\_payee}, \textsf{known\_contact}:
+\emph{provenance} predicate (\textsf{known\_payee}, \textsf{known\_contact}),
 computed over the monitor's own recorded trace: a payee is trusted iff it appeared
 earlier as a structured recipient/sender field. That trace is, however, partly
 attacker-controlled: an injection can plant text that the canonicaliser reads as a
@@ -818,7 +830,7 @@ behaviour, which they do well, but a statement that they are not, as shipped,
 \S\ref{sec:results}: with the history absent, sophisticated temporal obligations
 necessarily collapse into simple action typing. A readiness scorecard over the three
 benchmarks (Table~\ref{tab:score}) makes this concrete. Explicit \emph{approvals} are almost absent: $0/6899$ ($0\%$)
-AgentDojo events, $6/483$ ($1.2\%$) STAC chains, $1/571$ ($0.2\%$) R-Judge records.
+AgentDojo runs, $6/483$ ($1.2\%$) STAC chains, $2/571$ ($0.4\%$) R-Judge records.
 Recipient/payee identity is recoverable more often ($38.8\%$/$58.4\%$/$5.8\%$) and
 object identity sometimes ($36.4\%$/$34.2\%$/$47.3\%$), but user-confirmation events
 are rare ($4.6\%$/$16.4\%$/$0\%$). Above all, \emph{none} of the three carries real
@@ -826,7 +838,7 @@ timestamps (only call order), structured state transitions, or reversibility typ
 The metric and stateful policies that motivate temporal RV (\S\ref{sec:cps}) thus
 cannot be evaluated on these corpora as shipped: we authored timed logs to exercise
 them. As a practical consequence we derive a twelve-field \emph{enforcement-ready} trace
-schema (the twelve fields tabulated in Table~\ref{tab:score}) being the minimum
+schema, enumerated below, giving the minimum
 event semantics needed to
 benchmark relational, provenance-sensitive and timed policies. Recording these fields is
 cheap at trace-emission time: every one is available to the harness at the moment a
@@ -846,8 +858,8 @@ turn \emph{after} the proposal; the protocol has no such turn, and consistently 
 its $68$ distinct tools is approval-like. Approvals there are foreclosed by the
 interaction protocol, not merely unrecorded: no parser can recover them. STAC is
 \emph{multi-turn} (mean $2.6$ user turns, up to five), so approvals \emph{can} occur, and
-approval language does appear: mining the user text rather than tool names raises the
-count twelvefold, from $6/483$ ($1.2\%$) to $70/483$ ($14.5\%$) on a loose keyword match
+approval language does appear: mining the user text instead of tool names raises the
+count almost twelvefold, from $6/483$ ($1.2\%$) to $70/483$ ($14.5\%$) on a loose keyword match
 and $39/483$ ($8.1\%$) on a strict permission-granting match. But only $3/483$ ($0.6\%$)
 occur \emph{before} the harmful step, which is the only position from which an approval
 could gate anything, because STAC's attacks work precisely by smuggling the harmful
@@ -885,11 +897,11 @@ under attack.}
 \toprule
 Level & policy class & detect & BFR & flip \\
 \midrule
-R0 action only        & typed-action O1--O5   & $79.2\%$ & $44.0\%$ &: \\
+R0 action only        & typed-action O1--O5   & $79.2\%$ & $44.0\%$ & n/a \\
 R1 $+$ recipient id   & recipient-bound       & $70.0\%$ & $24.0\%$ & $94\%$ \\
 R2 $+$ bound provenance & poison-resistant    & $70.0\%$ & $24.0\%$ & $\mathbf{0\%}$ \\
 \midrule
-R3 $+$ approval binding & approval-bound      & \multicolumn{3}{c}{unevaluable: $0$ approvals$/1545$ runs} \\
+R3 $+$ approval binding & approval-bound      & \multicolumn{3}{c}{unevaluable: $0$ approvals in $1545$ banking runs} \\
 R4 $+$ timestamps/state & metric, transition  & \multicolumn{3}{c}{unevaluable: $0$ timestamped messages} \\
 \bottomrule
 \end{tabular}
@@ -951,7 +963,7 @@ prevention; an in-loop shield addresses a different question (agent adaptation a
 enforcement) outside our scope, and one we pursue separately with a digital-twin-in-the-loop
 harness~\cite{mesasdtloop2026}. Generic specs have a high BFR ($29.3\%$), and the
 parametric refinements that reduce it are evaluated for banking and workspace only.
-STAC lacks preconditions ($6/483$ chains), so its generic obligations reduce to
+STAC lacks preconditions ($6/483$ chains by tool name; \S\ref{sec:gap}), so its generic obligations reduce to
 typed-action detection; the metric power of MFOTL is exercised in the CPS/IoT study
 instead. Keyword typing is coarse, and a semantic residual ($\approx$$29\%$ of STAC,
 more of R-Judge) needs a content checker structural RV does not provide. Finally, the
@@ -962,12 +974,14 @@ timing dependence: establishing expressiveness, not field prevalence.
 detects $70.1\%$ of GPT-4o's successful AgentDojo attacks at $29.3\%$ BFR: numbers
 that mostly reflect risky-action \emph{typing}, since these corpora rarely contain the
 preconditions temporal logic is for. Where data-parametric and timed reasoning applies,
-MFOTL states and MonPoly checks conditions a stateless per-call predicate cannot. Three
+MFOTL states and MonPoly checks conditions a stateless per-call predicate cannot. Four
 completed results anchor the security case: a concrete earliest-warning margin
 (preventive on $52.4\%$ of successful AgentDojo attacks, median lead one tool-call);
 the provenance predicate behind the parametric precision is itself an attack surface,
-flipped $94$--$99\%$ by one planted structured line, for which we sketch, but, on
-these corpora, cannot yet evaluate: a hardened trusted-provenance specification; and
+flipped $94$--$99\%$ by one planted structured line, which binding provenance to the
+issuing lookup closes completely on the tested attack family, at no cost in detection
+or benign firing; a field ablation showing that the sound and unsound variants are
+indistinguishable except under attack; and
 a readiness scorecard showing current benchmarks
 lack the timestamps, structured state, reversibility typing and approvals
 history-dependent enforcement needs. That last result is the one we would most want
@@ -1019,8 +1033,12 @@ sendmessage, send\_message, send\_sms, tweet.
 medication, open\_, close\_, activate, reboot, restart, deploy, write\_, update\_,
 configure, install.
 \emph{APPROVAL (precondition):} confirm, approve, consent, authorize, authorise,
-permission, verify, grant, two\_factor, 2fa, otp, request\_approval, ack, sign\_off,
-double\_check.
+permission, verify, grant, two\_factor, 2fa, otp, request\_approval, acknowledge,
+sign\_off, double\_check. No tool whose name begins \texttt{get\_}, \texttt{list\_},
+\texttt{read\_}, \texttt{search\_}, \texttt{view\_}, \texttt{fetch\_} or
+\texttt{query\_} counts as an approval event or as a typed action, since a read-only
+accessor is neither a grant of permission nor a commit (\S\ref{sec:method}). This is
+the corrected set used for every number reported here.
 
 \paragraph{Argument normalisation} Tool arguments are parsed from JSON to a dict
 (malformed strings kept under a raw key). The \texttt{known\_payee} and
@@ -1055,7 +1073,7 @@ timepoints, only to whether a matching predicate occurred earlier in the case. F
 \emph{timed} policies of \S\ref{sec:cps} this is different: there the integer
 timestamp is the event's clock time (in hours), timepoints are spaced by real elapsed
 time, and the metric windows ($\text{\textsc{once}}[0,W]$) depend on those gaps, so we
-keep the actual times rather than a dense index. Per-obligation counts are
+keep the actual times, not a dense index. Per-obligation counts are
 non-exclusive; a case/run counts as detected if $\ge 1$ obligation fires.
 
 \paragraph{Full MFOTL obligations (monitored violation form)} With
@@ -1103,8 +1121,8 @@ MonPoly's metric \texttt{CNT} aggregation over a sliding $[0,6]$ window.
 
 \paragraph{MonPoly version and invocation} The engine is MonPoly, version string
 \texttt{MonPoly (development build)} (from \texttt{monpoly -version}), at
-\texttt{/usr/local/bin/monpoly} inside Docker image \texttt{rv-fabric-impl-backend}
-(image id \texttt{sha256:6e223674\allowbreak66a8}). It is invoked as
+\texttt{/usr/local/bin/monpoly} inside Docker image \texttt{infsec/monpoly}
+(image id \texttt{sha256:82cde1a2\allowbreak3cd3}). It is invoked as
 \texttt{monpoly -sig <s>.sig -formula <f>.mfotl -log <l>.log}; all formulas above pass
 \texttt{monpoly -check} as monitorable. On the STAC export it fires on exactly $347$
 timepoints, matching the reference monitor. Because both consume the same canonical log,
@@ -1173,8 +1191,8 @@ STAC~\cite{stac2026} (benchmark)  & \checkmark & --         & --         & \chec
 
 \paragraph{Per-obligation ablation (AgentDojo, GPT-4o)} Table~\ref{tab:peroblig}
 breaks the union result down by obligation, with each obligation's positive likelihood
-ratio $\mathrm{LR^+}$ (detection $/$ BFR). Export is the single most discriminating
-obligation ($\mathrm{LR^+}=2.58$) and teardown never fires for GPT-4o (these suites
+ratio $\mathrm{LR^+}$ (detection $/$ BFR). Destructive is the single most discriminating
+obligation ($\mathrm{LR^+}=3.91$), ahead of export ($2.64$) and teardown never fires for GPT-4o (these suites
 have no protection-teardown tools).
 
 \begin{table}[htbp]
@@ -1213,7 +1231,7 @@ benign), whereas Table~\ref{tab:param} counts every run with a non-empty message
 the banking gap therefore has two causes at once. Under the message-list filter the
 generic union fires on $19/25=76.0\%$ of benign banking runs against $19/24=79.2\%$
 here, the same numerator over the one extra run; Table~\ref{tab:param}'s $11/25$ differs
-from both because it is a single obligation rather than the union.}
+from both because it is a single obligation, not the union.}
 \label{tab:suite}
 \renewcommand{\arraystretch}{1.0}
 \setlength{\tabcolsep}{6pt}
@@ -1238,7 +1256,7 @@ unchanged in $2$, and increases it in $0$; the median per-directory reduction is
 $8.0$ percentage points (IQR $[4,17]$, min $0$, max $24$). An exact two-sided sign
 test on the $20$-vs-$0$ split gives $p=1.9\times10^{-6}$: the reduction direction is
 consistent across models, not an artefact of pooling. Over the same $22$ directories,
-generic detection ranges $40.9$--$83.3\%$ and BFR $17.6$--$37.4\%$.
+generic detection ranges $48.4$--$91.7\%$ and BFR $16.7$--$34.8\%$.
 
 \begin{table}[htbp]
 \centering
@@ -1255,7 +1273,7 @@ Class & P & R & (tp/fp/fn) \\
 \midrule
 O1 destructive & $0.78$ & $1.00$ & $7/2/0$ \\
 O2 teardown    & $1.00$ & $1.00$ & $3/0/0$ \\
-O3 financial   & $0.78$ & $0.78$ & $7/2/2$ \\
+O3 financial   & $1.00$ & $0.78$ & $7/2/2$ \\
 O4 export      & $1.00$ & $0.67$ & $4/0/2$ \\
 O5 actuation   & $0.86$ & $0.86$ & $6/1/1$ \\
 \midrule
@@ -1268,7 +1286,7 @@ micro-average  & $0.90$ & $0.84$ & F1 $0.87$ \\
 \paragraph{Canonicalisation sensitivity} Table~\ref{tab:canonsens} re-runs the
 AgentDojo and STAC replays under four tool$\to$class mappings. Correcting the known
 typing errors raises detection and BFR together (the frozen keyword typing is
-conservative); the conservative mapping leaves AgentDojo unchanged but lowers STAC.
+conservative); the conservative mapping lowers AgentDojo detection to $69.0\%$ and BFR to $26.0\%$, and STAC further.
 
 \begin{table}[htbp]
 \centering
@@ -1294,7 +1312,7 @@ expanded      & $79.9$ & $43.9$ & $73.1$ \\
 throughput and peak resident memory for the STAC log at $1\times$, $10\times$ and
 $50\times$ replication and for an AgentDojo-derived log. Throughput is dominated by
 start-up on short logs, rising from $52$--$179$k events/s on the $357$-timepoint STAC
-log to $0.36$--$0.46$M at $\times10$--$\times50$ and $0.8$M on the AgentDojo export,
+log to $0.43$--$0.45$M at $\times10$--$\times50$ and $0.8$M on the AgentDojo export,
 with flat $8$--$14$\,MB RSS; at $\times1$ the parametric formula is about three times
 slower than the generic one ($52$k vs $155$k), a gap that closes as the log grows.
 Replicating the STAC log $10\times$ yields exactly $3470=10\times347$ firings, which
