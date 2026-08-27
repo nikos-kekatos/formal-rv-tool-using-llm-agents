@@ -159,6 +159,10 @@ constraint in the corpora rather than the formalism.
 
 \maketitle
 
+%% acmart sets \flushbottom after \maketitle; the forced equal column
+%% heights produce small overfull vboxes around the appendix displays.
+\raggedbottom
+
 % ============================================================================
 \section{Introduction}
 \label{sec:intro}
@@ -820,7 +824,13 @@ trajectories contain a mutating call; and while a tool-name search again finds
 $1039/1980 = 52.5\%$ of trajectories contain explicit permission-granting language in a
 user turn positioned \emph{before} the mutating call. Every one of those $1039$ answers a
 preceding assistant turn that made no tool call, i.e.\ they are confirmations of a
-proposal rather than instructions. Against STAC's $0.6\%$ that is a factor of eighty.
+proposal rather than instructions. Against STAC's $0.6\%$ that is a factor of eighty. The effect is not a
+single-domain quirk: the rate is $58.0\%$ and $46.5\%$ on the airline domain
+($200$ and $400$ trajectories, GPT-4o and Sonnet-3.5) and $65.4\%$ and $47.4\%$ on
+retail ($460$ and $920$), so it holds across both domains and both models. The airline
+domain is also the travel-booking setting Maris evaluates with $20$ synthetic queries,
+which is the comparison we can make: same task domain, $600$ recorded trajectories
+instead of authored ones.
 
 Two conclusions follow. The approval shortfall is a property of \emph{attack} corpora
 rather than of agent traces in general, so it is a fixable instrumentation gap and not an
@@ -991,10 +1001,14 @@ clears once a prior consent is present: a verdict flip on real IoT data the gene
 
 \paragraph{Positioning} MFOTL and MonPoly have already been applied to agent policy
 enforcement: Maris~\cite{maris2026} expresses privacy policies in MFOTL and calls MonPoly
-online, from inside the agent runtime, on three authored applications. Our question is a
+online, from inside the agent runtime, on three authored applications (HospitalGPT,
+OptiGuide and a travel agent) driven by $20$ synthetic queries each. Our question is a
 different one, and the difference is the corpus rather than the formalism: what is
 measurable \emph{offline}, on the attack corpora the community already ships, and what
-those corpora cannot support. What formal RV adds in that setting is the combination:
+those corpora cannot support. That setting is not directly comparable, because those
+applications ship no recorded trajectories to replay, and it is the reason we report on
+$6{,}899$ AgentDojo runs, $483$ STAC chains, $571$ R-Judge records and $1{,}980$
+$\tau$-bench trajectories rather than on authored queries. What formal RV adds in that setting is the combination:
 trace-level scope, formal temporal semantics, data-parametric provenance and offline
 evaluability in \emph{one} declarative substrate. The comparison is with what the cited systems were
 shown to do, not with what they could in principle express.
