@@ -274,7 +274,9 @@ Stream monitors (RTLola~\cite{rtlola2019}, TeSSLa~\cite{tessla2018}) target nume
 signals and complement us for quantitative obligations. A \emph{hybrid} deployment
 can route relational/parametric obligations to MonPoly and purely numeric ones to
 RTLola/TeSSLa, reusing hybrid-hierarchical RV infrastructure that already runs both
-families in edge-IoT settings~\cite{hybridhier2025,hiermon2026,critisfabric2026};
+families in edge-IoT settings~\cite{hybridhier2025,hiermon2026,critisfabric2026}, where
+the compute budget a monitor must share with the application is itself a measured
+constraint~\cite{v2xedge2026};
 companion work of ours applies mission-level runtime assurance to LLM-assisted swarms
 over a verification-aware fabric~\cite{mesasswarm2026}, where the traces are generated in
 simulation, not recorded: the complementary setting to the offline replay
@@ -661,21 +663,16 @@ provenance a policy reads is content an attacker can write.
 
 \subsection{Canonicalisation accuracy and sensitivity}
 
-Detection is only as good as the tool$\to$class typing. A single annotator, blind to
-the typing predictions and to any detection outcome, hand-labelled $54$ distinct tool
-names sampled stratified by call frequency and domain across AgentDojo and STAC.
-Against this gold set the keyword typing has micro-averaged precision $0.90$, recall
-$0.84$, F1 $0.87$, and single-primary exact-match $87.0\%$ ($47/54$); the residual errors are
-systematic (e.g.\ \texttt{send\_\allowbreak channel\_\allowbreak message} and
-\texttt{send\_\allowbreak direct\_\allowbreak message} missed by export,
-\texttt{reserve\_hotel} and \texttt{reserve\_restaurant} missed by financial) not
-random, and we report them without tuning (per-class table in
-Appendix~\ref{app:extended}, Table~\ref{tab:canon}). To bound how much this typing
-drives the headline numbers, we re-ran the replays under four tool$\to$class mappings
-(original, corrected, conservative, expanded; Table~\ref{tab:canonsens}): AgentDojo
-detection moves in $[69.0,79.9]\%$ and BFR in $[26.0,43.9]\%$, STAC detection stays in
-$[61.7,73.1]\%$: moderately sensitive, with the frozen typing \emph{conservative}
-on AgentDojo (correcting the mapping raises detection, not lowers it).
+Detection is only as good as the tool$\to$class typing, so we measure it and bound its
+influence. Against a gold set of $54$ tool names hand-labelled blind to any detection
+outcome, the keyword typing reaches micro-averaged precision $0.90$, recall $0.84$ and
+single-primary exact-match $87.0\%$ ($47/54$), with systematic rather than random
+residual errors. Re-running the replays under four tool$\to$class mappings moves AgentDojo
+detection within $[69.0,79.9]\%$ and BFR within $[26.0,43.9]\%$, and STAC detection within
+$[61.7,73.1]\%$: moderately sensitive, and the frozen typing is \emph{conservative} on
+AgentDojo, since correcting the mapping raises detection rather than lowering it. The gold
+set, the per-class table and the four mappings are in
+Appendix~\ref{app:extended} (Tables~\ref{tab:canon} and~\ref{tab:canonsens}).
 
 % ============================================================================
 \subsection{Provenance integrity: the monitor's trace history is an attack surface}
@@ -922,80 +919,14 @@ enforcement.
 
 % ============================================================================
 
-\subsection{Timed CPS/IoT policies: evaluability under the proposed schema}
-\label{sec:cps}
+\paragraph{Timed policies} Metric obligations are what the schema of this section would
+make evaluable, and they are the one place the paper exercises MFOTL's metric operators.
+Because the corpora carry no timestamps we exercise them on authored logs: three timed
+policies, a multi-instance building trace and the R-Judge IoT subset, all run verbatim by
+MonPoly, with a verdict that flips on identical actions purely by elapsed time. The
+detail is in Appendix~\ref{app:timed}, since it demonstrates expressiveness rather than
+field performance.
 
-This is a proof of \emph{applicability} of MFOTL/MonPoly to CPS/IoT policies,
-not a broad security validation on CPS/IoT deployments. Agentic components are already being proposed for such settings, together with tamper-evident evidence trails~\cite{resilagent2026}, which is what makes the trace-integrity question of \S\ref{sec:canon} concrete rather than hypothetical. We give three evidence points,
-all evaluated verbatim by MonPoly: \emph{timed} (metric) actuation policies, a
-multi-instance building trace, and a real (small) IoT subset.
-
-\paragraph{Timed policies whose verdict depends on elapsed time} A reviewer of an
-earlier version noted the generic obligations exercise little temporal complexity:
-on these corpora an unbounded $\blacklozenge$ reduces to typed-action detection. We
-therefore author three \emph{metric} obligations whose verdict on the \emph{identical}
-action changes purely with the clock (signatures, logs and formulas in
-Appendix~\ref{app:repro}; Table~\ref{tab:timed}). \emph{(T1) Bounded-window consent}:
-an export requires a consent within the last $W{=}24$\,h,
-$\mathsf{export}(o)\wedge\neg(\text{\textsc{once}}[0,24]\,\mathsf{consent}(o))$:
-MonPoly fires only when the consent is stale. \emph{(T2) Sliding-window rate limit}:
-$\ge 3$ actuations on a device within $W{=}6$\,h (metric \textsc{cnt} over
-$\text{\textsc{once}}[0,6]$): fires on a burst, silent once calls are spaced.
-\emph{(T3) Timed precedence}: an \texttt{execute} must be preceded within $W{=}8$\,h by
-an authorisation: fires only when the authorisation has expired. Each is exactly
-the kind of ``property that contains time'' a per-call classifier, and an unbounded
-past-time check, cannot express.
-
-\begin{table}[t]
-\centering
-\caption{Timed (metric MFOTL) policies evaluated verbatim by MonPoly. For each, the
-\emph{same} action is allowed or a violation purely by elapsed time; $\bullet$ marks
-the timepoints where MonPoly fires. Full sig/log/formula in Appendix~\ref{app:repro}.}
-\label{tab:timed}
-\renewcommand{\arraystretch}{1.1}
-\setlength{\tabcolsep}{5pt}
-\footnotesize
-\begin{tabular}{llc}
-\toprule
-Policy (window) & action, timing & MonPoly \\
-\midrule
-T1 consent ($24$\,h)   & export, consent $12$\,h ago      & pass \\
-T1 consent ($24$\,h)   & export, consent $48$\,h ago      & $\bullet$ \textbf{violation} \\
-T1 consent ($24$\,h)   & export, re-consent $10$\,h ago   & pass \\
-T2 rate ($\ge3/6$\,h)  & 3rd actuation within $6$\,h      & $\bullet$ \textbf{violation} \\
-T2 rate ($\ge3/6$\,h)  & actuations spaced $>6$\,h apart  & pass \\
-T3 precede ($8$\,h)    & execute, auth $6$\,h ago         & pass \\
-T3 precede ($8$\,h)    & execute, auth $40$\,h ago        & $\bullet$ \textbf{violation} \\
-T3 precede ($8$\,h)    & execute, re-auth $4$\,h ago      & pass \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The traces behind Table~\ref{tab:timed} are likewise authored, not recorded: the point
-they establish is that \emph{elapsed time alone} flips MonPoly's verdict on an
-otherwise identical action, which is a property of the specification language, not
-evidence of field accuracy.
-
-\paragraph{Multi-instance building actuation} On an authored $20$-event smart-building
-trace ($13$ policy-relevant actions, three past-time policies, formulas in
-Appendix~\ref{app:repro}) MonPoly flags exactly the $6$ history-violating instances and
-clears all $7$ compliant ones. One violation is purely \emph{timed}: an enabling
-\texttt{damper\_open} fell $4$\,h before a $3$\,h window, so the same compressor start is
-a violation only by timing.
-
-\paragraph{R-Judge IoT (real data, small: cannot be enlarged)} The R-Judge IoT
-subset (smart home, traffic dispatch, phone) is \emph{all the labelled IoT agent
-records the benchmark ships}: $30$ records ($19$ unsafe, $11$ safe), so we report it as
-illustrative. The generic obligations yield $31.6\%$ detection ($6/19$) and $27.3\%$
-FPR ($3/11$) with wide Wilson intervals. It does contain relational cases: in one
-unsafe record the agent grants a dog-walker \emph{permanent} smart-lock access without
-consent. Encoding it under a parametric consent obligation
-$\square\,\forall g,p.(\mathsf{grant}(g,p)\wedge p{=}1\wedge
-\neg\,\blacklozenge\,\mathsf{consent}())$, MonPoly fires on the permanent grant and
-clears once a prior consent is present: a verdict flip on real IoT data the generic
-``grant'' typing (which never fires here) cannot make.
-
-% ============================================================================
 \section{Discussion and Conclusion}
 \label{sec:concl}
 
@@ -1222,6 +1153,82 @@ monitor did not flag, \emph{not} a measured attack-success rate under an in-loop
 shield (which would require re-running the agent).
 
 % ============================================================================
+\section{Timed CPS/IoT Policies}
+\label{sec:cps}
+
+This is a proof of \emph{applicability} of MFOTL/MonPoly to CPS/IoT policies,
+not a broad security validation on CPS/IoT deployments. Agentic components are already being proposed for such settings, together with tamper-evident evidence trails~\cite{resilagent2026}, which is what makes the trace-integrity question of \S\ref{sec:canon} concrete rather than hypothetical. We give three evidence points,
+all evaluated verbatim by MonPoly: \emph{timed} (metric) actuation policies, a
+multi-instance building trace, and a real (small) IoT subset.
+
+\paragraph{Timed policies whose verdict depends on elapsed time} A reviewer of an
+earlier version noted the generic obligations exercise little temporal complexity:
+on these corpora an unbounded $\blacklozenge$ reduces to typed-action detection. We
+therefore author three \emph{metric} obligations whose verdict on the \emph{identical}
+action changes purely with the clock (signatures, logs and formulas in
+Appendix~\ref{app:repro}; Table~\ref{tab:timed}). \emph{(T1) Bounded-window consent}:
+an export requires a consent within the last $W{=}24$\,h,
+$\mathsf{export}(o)\wedge\neg(\text{\textsc{once}}[0,24]\,\mathsf{consent}(o))$:
+MonPoly fires only when the consent is stale. \emph{(T2) Sliding-window rate limit}:
+$\ge 3$ actuations on a device within $W{=}6$\,h (metric \textsc{cnt} over
+$\text{\textsc{once}}[0,6]$): fires on a burst, silent once calls are spaced.
+\emph{(T3) Timed precedence}: an \texttt{execute} must be preceded within $W{=}8$\,h by
+an authorisation: fires only when the authorisation has expired. Each is exactly
+the kind of ``property that contains time'' a per-call classifier, and an unbounded
+past-time check, cannot express.
+
+\begin{table}[t]
+\centering
+\caption{Timed (metric MFOTL) policies evaluated verbatim by MonPoly. For each, the
+\emph{same} action is allowed or a violation purely by elapsed time; $\bullet$ marks
+the timepoints where MonPoly fires. Full sig/log/formula in Appendix~\ref{app:repro}.}
+\label{tab:timed}
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{5pt}
+\footnotesize
+\begin{tabular}{llc}
+\toprule
+Policy (window) & action, timing & MonPoly \\
+\midrule
+T1 consent ($24$\,h)   & export, consent $12$\,h ago      & pass \\
+T1 consent ($24$\,h)   & export, consent $48$\,h ago      & $\bullet$ \textbf{violation} \\
+T1 consent ($24$\,h)   & export, re-consent $10$\,h ago   & pass \\
+T2 rate ($\ge3/6$\,h)  & 3rd actuation within $6$\,h      & $\bullet$ \textbf{violation} \\
+T2 rate ($\ge3/6$\,h)  & actuations spaced $>6$\,h apart  & pass \\
+T3 precede ($8$\,h)    & execute, auth $6$\,h ago         & pass \\
+T3 precede ($8$\,h)    & execute, auth $40$\,h ago        & $\bullet$ \textbf{violation} \\
+T3 precede ($8$\,h)    & execute, re-auth $4$\,h ago      & pass \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The traces behind Table~\ref{tab:timed} are likewise authored, not recorded: the point
+they establish is that \emph{elapsed time alone} flips MonPoly's verdict on an
+otherwise identical action, which is a property of the specification language, not
+evidence of field accuracy.
+
+\paragraph{Multi-instance building actuation} On an authored $20$-event smart-building
+trace ($13$ policy-relevant actions, three past-time policies, formulas in
+Appendix~\ref{app:repro}) MonPoly flags exactly the $6$ history-violating instances and
+clears all $7$ compliant ones. One violation is purely \emph{timed}: an enabling
+\texttt{damper\_open} fell $4$\,h before a $3$\,h window, so the same compressor start is
+a violation only by timing.
+
+\paragraph{R-Judge IoT (real data, small: cannot be enlarged)} The R-Judge IoT
+subset (smart home, traffic dispatch, phone) is \emph{all the labelled IoT agent
+records the benchmark ships}: $30$ records ($19$ unsafe, $11$ safe), so we report it as
+illustrative. The generic obligations yield $31.6\%$ detection ($6/19$) and $27.3\%$
+FPR ($3/11$) with wide Wilson intervals. It does contain relational cases: in one
+unsafe record the agent grants a dog-walker \emph{permanent} smart-lock access without
+consent. Encoding it under a parametric consent obligation
+$\square\,\forall g,p.(\mathsf{grant}(g,p)\wedge p{=}1\wedge
+\neg\,\blacklozenge\,\mathsf{consent}())$, MonPoly fires on the permanent grant and
+clears once a prior consent is present: a verdict flip on real IoT data the generic
+``grant'' typing (which never fires here) cannot make.
+
+% ============================================================================
+\label{app:timed}
+
 \section{Extended Results and Robustness}
 \label{app:extended}
 

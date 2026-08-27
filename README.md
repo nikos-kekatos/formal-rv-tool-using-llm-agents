@@ -18,6 +18,8 @@ typed-action detection, because the recorded traces carry almost no approvals an
 no timestamps; the claims that rest on the formalism are the parametric
 obligations, the timed policies, and the benchmark readiness scorecard.
 
+**Every number in the paper maps to one command in [REPRODUCING.md](REPRODUCING.md).**
+
 ## Layout
 
 ```
@@ -26,7 +28,8 @@ code/     the analysis scripts (pure Python 3 standard library)
   monpoly_experiments/   the studies that additionally need a MonPoly binary
 specs/    the MFOTL specifications, signatures and logs
 data/     you populate this — the benchmarks are NOT redistributed here
-RESULTS.md  every number in the paper, with the command that produces it
+REPRODUCING.md  paper table -> command -> expected value, for every result
+RESULTS.md      recorded output of the reruns behind the camera-ready
 ```
 
 ## Requirements
