@@ -1,0 +1,60 @@
+cff-version: 1.2.0
+title: >-
+  Formal Runtime Verification for Tool-Using LLM Agents:
+  An Offline Same-Benchmark Study on AgentDojo and STAC
+message: If you use this artifact, please cite the paper.
+type: software
+authors:
+  - family-names: Kekatos
+    given-names: Nikolaos
+    affiliation: Clone Systems
+  - family-names: Basagiannis
+    given-names: Stylianos
+    affiliation: International Hellenic University
+  - family-names: Chintri
+    given-names: Marinelio
+    affiliation: International Hellenic University
+  - family-names: Lekidis
+    given-names: Alexios
+    affiliation: University of Thessaly
+  - family-names: Nianios
+    given-names: Tom
+    affiliation: Clone Systems
+  - family-names: Seitoglou
+    given-names: Ioannis
+    affiliation: International Hellenic University
+  - family-names: Temperekidis
+    given-names: Anastasios
+    affiliation: Clone Systems
+  - family-names: Katsaros
+    given-names: Panagiotis
+    affiliation: Aristotle University of Thessaloniki
+preferred-citation:
+  type: conference-paper
+  title: >-
+    Formal Runtime Verification for Tool-Using LLM Agents:
+    An Offline Same-Benchmark Study on AgentDojo and STAC
+  collection-title: >-
+    Proceedings of the 8th Joint Workshop on CPS & IoT Security
+    and Privacy (CPSIoTSec '26)
+  publisher:
+    name: ACM
+  year: 2026
+  month: 11
+  authors:
+    - family-names: Kekatos
+      given-names: Nikolaos
+    - family-names: Basagiannis
+      given-names: Stylianos
+    - family-names: Chintri
+      given-names: Marinelio
+    - family-names: Lekidis
+      given-names: Alexios
+    - family-names: Nianios
+      given-names: Tom
+    - family-names: Seitoglou
+      given-names: Ioannis
+    - family-names: Temperekidis
+      given-names: Anastasios
+    - family-names: Katsaros
+      given-names: Panagiotis

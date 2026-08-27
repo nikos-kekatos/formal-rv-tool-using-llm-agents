@@ -150,7 +150,7 @@ flag (deceiving no model, only the monitor), and that binding provenance to the 
 that produced it removes the evasion entirely at no cost in detection or benign firing. A
 field ablation locates where each capability is gained, and shows that the sound and
 unsound provenance policies are indistinguishable on clean traces, separating only under
-attack. Finally, metric policies flip verdict on identical actions purely by elapsed time.
+attack. Metric policies also flip verdict on identical actions purely by elapsed time.
 
 These results position MFOTL/MonPoly as an auditable substrate for relational and
 temporal agent policies, complementary to rule-based enforcement, and locate the binding
@@ -190,7 +190,7 @@ per-application code: complementary to rule-based enforcement, not a claim that
 rules cannot do it.
 
 \paragraph{The empirical question} A paradigm argument is only as good as its
-evidence: does formal RV actually catch \emph{real} agent attacks, and what does it
+\looseness=-1 evidence: does formal RV actually catch \emph{real} agent attacks, and what does it
 cost? Answering usually needs a live agent and an LLM. We avoid that: three major
 benchmarks ship \emph{recorded} trajectories: AgentDojo publishes $36.7$k
 recorded runs (tool-call traces plus its own attack-success and utility labels),
@@ -223,7 +223,7 @@ makes, and each contribution below is a step in it.
       improve discrimination by binding the verdict to prior payee or recipient
       provenance (banking benign firing $44\%\!\to\!24\%$, exact McNemar $p<10^{-10}$
       pooled across model directories), and metric policies flip verdict on identical
-      actions purely by elapsed time (\S\ref{sec:results}--\S\ref{sec:cps}).
+      actions purely by elapsed time (\S\ref{sec:results}--\S\ref{sec:gap}).
 \item \textbf{The assurance conditions: what must be observable and trustworthy.}
       Provenance-based policies introduce a new attack surface: one planted
       structured line reverses $94$--$99\%$ of affected verdicts, deceiving no model,
@@ -281,8 +281,9 @@ studied here; a
 shield~\cite{shielding2018} gates the pending call on a violation.
 
 % ============================================================================
-\section{Five Generic Obligations in MFOTL}
+\section{Obligations and Offline Methodology}
 \label{sec:oblig}
+\subsection{Five generic obligations in MFOTL}
 
 We define five reusable obligations, each of the form ``a risky action of a given
 class requires a matching precondition (approval/consent/confirmation) earlier in
@@ -305,7 +306,7 @@ on real benchmarks, and where precision then demands \emph{parametric} refinemen
 MFOTL but not in stateless per-call predicates.
 
 % ============================================================================
-\section{Offline Same-Benchmark Methodology}
+\subsection{Replay pipeline and measures}
 \label{sec:method}
 
 \begin{figure}[t]
@@ -320,10 +321,10 @@ MFOTL but not in stateless per-call predicates.
 \node[b, right=of m] (v) {Verdict\\+ provenance};
 \draw[->] (r)--(c); \draw[->] (c)--(m); \draw[->] (m)--(v);
 \end{tikzpicture}}
-\caption{Offline pipeline. Recorded AgentDojo/STAC/R-Judge traces are canonicalised
+\looseness=-1 \caption{Offline pipeline. Recorded AgentDojo/STAC/R-Judge traces are canonicalised
 to a typed event stream and checked against MFOTL obligations by MonPoly; verdicts
 with provenance drive the offline analyses (coverage, BFR, earliest-warning,
-provenance integrity). No LLM or agent is executed.}
+provenance integrity). No LLM or agent runs.}
 \label{fig:pipeline}
 \end{figure}
 
@@ -410,7 +411,7 @@ precisely the class of error a substring canonicaliser invites and precisely wha
 \label{sec:results}
 
 \paragraph{AgentDojo (same-benchmark, offline)} Table~\ref{tab:agentdojo} replays
-all recorded GPT-4o runs (no defence). AgentDojo's own no-defence attack-success is
+\looseness=-1 all recorded GPT-4o runs (no defence). AgentDojo's own no-defence attack-success is
 $28.9\%$ ($1931/6680$). Our RV, applied to the identical runs, fires on $70.1\%$
 ($95\%$ CI $[68.0,72.1]$) of the \emph{successful} attacks: i.e.\ a shield would
 have had a flagged call to gate in just over seven in ten of the attacks that actually got
@@ -560,8 +561,8 @@ per-application imperative state management. We implement two and measure them
 (Table~\ref{tab:param}).
 
 \paragraph{Payee provenance (banking)} Instead of firing on \emph{any} transfer
-(generic O3), the parametric obligation fires only on a transfer to a payee never
-seen as a \emph{structured} recipient/sender in prior account data,
+\looseness=-1 (generic O3), the parametric obligation fires only on a transfer to a payee never
+seen as a \emph{structured} recipient or sender in prior account data,
 \[
   \square\,\forall p.\ \big(\mathsf{transfer}(p)\wedge
     \neg\,\blacklozenge\,\mathsf{known\_payee}(p)\big).
@@ -641,8 +642,9 @@ prior-state condition, which a \emph{stateless} per-call predicate cannot decide
 and which MFOTL states declaratively instead of leaving to bespoke stateful code.
 
 % ============================================================================
-\section{Canonicalisation: Accuracy and Sensitivity}
+\section{Threats to the Verdict: Canonicalisation and Provenance}
 \label{sec:canon}
+\subsection{Canonicalisation accuracy and sensitivity}
 
 Detection is only as good as the tool$\to$class typing. A single annotator, blind to
 the typing predictions and to any detection outcome, hand-labelled $54$ distinct tool
@@ -661,7 +663,7 @@ $[61.7,73.1]\%$: moderately sensitive, with the frozen typing \emph{conservative
 on AgentDojo (correcting the mapping raises detection, not lowers it).
 
 % ============================================================================
-\section{Provenance Integrity: the Monitor's Trace History is an Attack Surface}
+\subsection{Provenance integrity: the monitor's trace history is an attack surface}
 \label{sec:prov}
 
 The parametric obligations of \S\ref{sec:param} draw their power from a
@@ -692,13 +694,13 @@ themselves MFOTL obligations over a suitably-typed trace (a trust-domain field, 
 session id, an approval bound to object and amount): exactly the schema current
 benchmarks lack (\S\ref{sec:gap}).
 
-Conditions (ii)--(iv) need fields the corpora do not carry, so they remain design
+\looseness=-1 Conditions (ii)--(iv) need fields the corpora do not carry, so they remain design
 proposals. Condition (i) does not, once stated precisely, and we therefore
 \emph{evaluate} it. Note first that the obvious reading of (i) is vacuous against this
 attacker: the injection is itself a forged tool result, and the workspace obligation
 already restricts accrual to tool messages, yet still flips $99\%$. What discriminates is
 \emph{call--answer binding}: a genuine tool result answers a lookup the agent itself
-issued, whereas a planted message answers nothing outstanding:
+issued, while a planted message answers nothing outstanding:
 \[
 \mathit{known}(p)\;\leftrightarrow\;\ooalign{$\bullet$\cr}\bigl(\mathit{lookup}(t)\wedge
 \raisebox{0pt}{$\bigcirc$}\,\mathit{result}(t,p)\bigr).
@@ -713,10 +715,10 @@ claim this for the tested attack family only: an attacker who can forge a matchi
 lookup call, or compromise the tool being queried, is outside its reach.
 
 \begin{table}[t]
-\centering
+\looseness=-1 \centering
 \caption{Hardened provenance against the poisoning attack of \S\ref{sec:prov}: flip rate
 (flagged runs whose verdict reverses to ``known''). Detection and benign firing are
-identical under both predicates, so the hardening costs nothing measurable here.}
+identical under both predicates, so the hardening costs nothing measurable.}
 \label{tab:harden}
 \renewcommand{\arraystretch}{1.05}
 \setlength{\tabcolsep}{5pt}
@@ -740,7 +742,136 @@ workspace ($203$ flagged) & structured        & $99.0\%$ & $\mathbf{0.0\%}$ \\
 RV, not a canonicalisation detail.
 
 % ============================================================================
-\section{CPS/IoT Case Study: Timed Temporal Policies}
+\section{Benchmark Readiness for History-Dependent Agent Enforcement}
+\label{sec:gap}
+
+Our experiments expose a broader evaluation problem. Current agent-security benchmarks
+record enough to determine whether an \emph{attack succeeded}, but not enough to
+evaluate many \emph{history-dependent enforcement} policies. We therefore assess the
+three corpora as enforcement datasets, and quantify the availability of the state,
+provenance, approval and timing information a runtime monitor quantifies over. This is
+not a criticism of their design: they were built to measure attack success and agent
+behaviour, which they do well, but a statement that they are not, as shipped,
+\emph{enforcement-ready}. The consequence is the phenomenon we reported in
+\S\ref{sec:results}: with the history absent, sophisticated temporal obligations
+necessarily collapse into simple action typing. A readiness scorecard over the three
+benchmarks (Table~\ref{tab:score}) makes this concrete. Explicit \emph{approvals} are almost absent: $0/6899$ ($0\%$)
+AgentDojo runs, $6/483$ ($1.2\%$) STAC chains, $2/571$ ($0.4\%$) R-Judge records.
+Recipient/payee identity is recoverable more often ($38.8\%$/$58.4\%$/$5.8\%$) and
+object identity sometimes ($36.4\%$/$34.2\%$/$47.3\%$), but user-confirmation events
+are rare ($4.6\%$/$16.4\%$/$0\%$). Above all, \emph{none} of the three carries real
+timestamps (only call order), structured state transitions, or reversibility typing.
+The metric and stateful policies that motivate temporal RV (\S\ref{sec:cps}, below) thus
+cannot be evaluated on these corpora as shipped: we authored timed logs to exercise
+them. As a practical consequence we derive a twelve-field \emph{enforcement-ready} trace
+schema, enumerated below, giving the minimum
+event semantics needed to
+benchmark relational, provenance-sensitive and timed policies. Recording these fields is
+cheap at trace-emission time: every one is available to the harness at the moment a
+tool is called, and it is what would let the next generation of corpora evaluate this
+class of defence at all. One caveat follows from the census below: fields are necessary
+but not sufficient. A single-turn benchmark cannot express approval however many columns
+its log has, so an enforcement-ready corpus is a claim about the \emph{interaction
+protocol} as much as about the schema.
+
+\paragraph{Why the approvals are absent} The natural objection is that we search for
+approvals by \emph{tool name} and may simply be looking in the wrong place. We therefore
+looked everywhere, and the attrition is itself the result. Two structural facts explain
+it. AgentDojo is \emph{single-turn}: exactly one user message per run
+($6899/6899$), stating a task up front, after which the agent executes autonomously. An
+approval is by definition a response to a \emph{proposed} action, which requires a user
+turn \emph{after} the proposal; the protocol has no such turn, and consistently none of
+its $68$ distinct tools is approval-like. Approvals there are foreclosed by the
+interaction protocol, not merely unrecorded: no parser can recover them. STAC is
+\emph{multi-turn} (mean $2.6$ user turns, up to five), so approvals \emph{can} occur, and
+approval language does appear: mining the user text instead of tool names raises the
+count almost twelvefold, from $6/483$ ($1.2\%$) to $70/483$ ($14.5\%$) on a loose keyword match
+and $39/483$ ($8.1\%$) on a strict permission-granting match. But only $3/483$ ($0.6\%$)
+occur \emph{before} the harmful step, which is the only position from which an approval
+could gate anything, because STAC's attacks work precisely by smuggling the harmful
+step in without returning to the user. Better extraction therefore does not rescue the
+situation: it relocates the shortfall from recording to \emph{protocol and position}. An
+enforcement-ready corpus needs an interaction shape in which approval is expressible, not
+just a field in which it could be written down.
+
+\paragraph{What each field buys} A scorecard says which fields are missing; it does not
+say what capability their absence costs. We therefore ablate the trace itself, masking
+fields cumulatively on AgentDojo banking and asking, at each level, which policy class
+remains evaluable and how well it discriminates (Table~\ref{tab:ablation}). Two results
+stand out. First, the levels the corpora \emph{do} support are exactly the ones that buy
+little: recipient identity lifts $\mathrm{LR^+}$ from $1.80$ to $2.92$, and then the
+approval- and timing-dependent levels are simply unevaluable: \emph{zero}
+approval-typed calls and \emph{zero} timestamped messages across $1545$ runs. Second, and
+less obviously, R1 and R2 are \emph{observationally identical} on clean traces: same
+detection, same benign firing, same $\mathrm{LR^+}$. They separate only under attack, at
+$94\%$ versus $0\%$ evasion. Field availability alone therefore does not tell you whether
+a provenance policy is sound; the binding does, and its value is invisible to any
+evaluation that does not include an adversary. This is the sharper form of the readiness
+argument: a corpus can expose every field a policy names and still be unable to
+distinguish a sound policy from an unsound one.
+
+\begin{table}[t]
+\centering
+\caption{Trace-field ablation on AgentDojo banking. Levels are cumulative; ``poison
+flip'' is the structured-line evasion rate of \S\ref{sec:prov}. R1 and R2 differ only
+under attack.}
+\label{tab:ablation}
+\renewcommand{\arraystretch}{1.05}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{llccc}
+\toprule
+Level & policy class & detect & BFR & flip \\
+\midrule
+R0 action only     & typed-action    & $79.2\%$ & $44.0\%$ & n/a \\
+R1 $+$ recipient id & recipient-bound & $70.0\%$ & $24.0\%$ & $94\%$ \\
+R2 $+$ provenance   & poison-resistant & $70.0\%$ & $24.0\%$ & $\mathbf{0\%}$ \\
+\midrule
+R3 $+$ approval id & approval-bound  & \multicolumn{3}{c}{unevaluable ($0/1545$ runs)} \\
+R4 $+$ time, state & metric          & \multicolumn{3}{c}{unevaluable ($0$ timestamps)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Benchmark readiness for history-dependent enforcement: fraction of
+runs/records exposing each field. Real timestamps, structured state transitions, and
+reversibility typing are absent from all three (call-order only).}
+\label{tab:score}
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{5pt}
+\small
+\begin{tabular}{lccc}
+\toprule
+Field & AgentDojo & STAC & R-Judge \\
+\midrule
+explicit approval      & $0\%$    & $1.2\%$  & $0.2\%$  \\
+recipient/payee id     & $38.8\%$ & $58.4\%$ & $5.8\%$  \\
+object id              & $36.4\%$ & $34.2\%$ & $47.3\%$ \\
+user confirmation      & $4.6\%$  & $16.4\%$ & $0\%$    \\
+real timestamps        & none     & none     & none     \\
+structured state       & none     & none     & none     \\
+reversibility typing   & none     & none     & none     \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{A minimal trace schema} We therefore propose a minimal enforcement-ready
+schema: twelve fields per event: \texttt{timestamp}, \texttt{actor}, \texttt{tool},
+\texttt{action}, \texttt{object}, \texttt{recipient}, \texttt{source},
+\texttt{approval\_id}, \texttt{session\_id}, \texttt{state\_before},
+\texttt{state\_after}, \texttt{trust\_domain}. Current benchmarks supply the middle
+group (tool/action, partially object/recipient) but none of wall-clock
+\texttt{timestamp}, \texttt{approval\_id}, \texttt{session\_id}, the state pair, or
+\texttt{trust\_domain}: the fields the timed policies (\S\ref{sec:cps}) and the
+hardened provenance spec (\S\ref{sec:prov}) require. Cheap to emit but absent
+everywhere, they are the concrete obstacle to evaluating history-dependent agent
+enforcement.
+
+% ============================================================================
+
+\subsection{What the schema would unlock: timed CPS/IoT policies}
 \label{sec:cps}
 
 This is a proof of \emph{applicability} of MFOTL/MonPoly to CPS/IoT policies,
@@ -814,134 +945,6 @@ $\square\,\forall g,p.(\mathsf{grant}(g,p)\wedge p{=}1\wedge
 \neg\,\blacklozenge\,\mathsf{consent}())$, MonPoly fires on the permanent grant and
 clears once a prior consent is present: a verdict flip on real IoT data the generic
 ``grant'' typing (which never fires here) cannot make.
-
-% ============================================================================
-\section{Benchmark Readiness for History-Dependent Agent Enforcement}
-\label{sec:gap}
-
-Our experiments expose a broader evaluation problem. Current agent-security benchmarks
-record enough to determine whether an \emph{attack succeeded}, but not enough to
-evaluate many \emph{history-dependent enforcement} policies. We therefore assess the
-three corpora as enforcement datasets, and quantify the availability of the state,
-provenance, approval and timing information a runtime monitor quantifies over. This is
-not a criticism of their design: they were built to measure attack success and agent
-behaviour, which they do well, but a statement that they are not, as shipped,
-\emph{enforcement-ready}. The consequence is the phenomenon we reported in
-\S\ref{sec:results}: with the history absent, sophisticated temporal obligations
-necessarily collapse into simple action typing. A readiness scorecard over the three
-benchmarks (Table~\ref{tab:score}) makes this concrete. Explicit \emph{approvals} are almost absent: $0/6899$ ($0\%$)
-AgentDojo runs, $6/483$ ($1.2\%$) STAC chains, $2/571$ ($0.4\%$) R-Judge records.
-Recipient/payee identity is recoverable more often ($38.8\%$/$58.4\%$/$5.8\%$) and
-object identity sometimes ($36.4\%$/$34.2\%$/$47.3\%$), but user-confirmation events
-are rare ($4.6\%$/$16.4\%$/$0\%$). Above all, \emph{none} of the three carries real
-timestamps (only call order), structured state transitions, or reversibility typing.
-The metric and stateful policies that motivate temporal RV (\S\ref{sec:cps}) thus
-cannot be evaluated on these corpora as shipped: we authored timed logs to exercise
-them. As a practical consequence we derive a twelve-field \emph{enforcement-ready} trace
-schema, enumerated below, giving the minimum
-event semantics needed to
-benchmark relational, provenance-sensitive and timed policies. Recording these fields is
-cheap at trace-emission time: every one is available to the harness at the moment a
-tool is called, and it is what would let the next generation of corpora evaluate this
-class of defence at all. One caveat follows from the census below: fields are necessary
-but not sufficient. A single-turn benchmark cannot express approval however many columns
-its log has, so an enforcement-ready corpus is a claim about the \emph{interaction
-protocol} as much as about the schema.
-
-\paragraph{Why the approvals are absent} The natural objection is that we search for
-approvals by \emph{tool name} and may simply be looking in the wrong place. We therefore
-looked everywhere, and the attrition is itself the result. Two structural facts explain
-it. AgentDojo is \emph{single-turn}: exactly one user message per run
-($6899/6899$), stating a task up front, after which the agent executes autonomously. An
-approval is by definition a response to a \emph{proposed} action, which requires a user
-turn \emph{after} the proposal; the protocol has no such turn, and consistently none of
-its $68$ distinct tools is approval-like. Approvals there are foreclosed by the
-interaction protocol, not merely unrecorded: no parser can recover them. STAC is
-\emph{multi-turn} (mean $2.6$ user turns, up to five), so approvals \emph{can} occur, and
-approval language does appear: mining the user text instead of tool names raises the
-count almost twelvefold, from $6/483$ ($1.2\%$) to $70/483$ ($14.5\%$) on a loose keyword match
-and $39/483$ ($8.1\%$) on a strict permission-granting match. But only $3/483$ ($0.6\%$)
-occur \emph{before} the harmful step, which is the only position from which an approval
-could gate anything, because STAC's attacks work precisely by smuggling the harmful
-step in without returning to the user. Better extraction therefore does not rescue the
-situation: it relocates the shortfall from recording to \emph{protocol and position}. An
-enforcement-ready corpus needs an interaction shape in which approval is expressible, not
-just a field in which it could be written down.
-
-\paragraph{What each field buys} A scorecard says which fields are missing; it does not
-say what capability their absence costs. We therefore ablate the trace itself, masking
-fields cumulatively on AgentDojo banking and asking, at each level, which policy class
-remains evaluable and how well it discriminates (Table~\ref{tab:ablation}). Two results
-stand out. First, the levels the corpora \emph{do} support are exactly the ones that buy
-little: recipient identity lifts $\mathrm{LR^+}$ from $1.80$ to $2.92$, and then the
-approval- and timing-dependent levels are simply unevaluable: \emph{zero}
-approval-typed calls and \emph{zero} timestamped messages across $1545$ runs. Second, and
-less obviously, R1 and R2 are \emph{observationally identical} on clean traces: same
-detection, same benign firing, same $\mathrm{LR^+}$. They separate only under attack, at
-$94\%$ versus $0\%$ evasion. Field availability alone therefore does not tell you whether
-a provenance policy is sound; the binding does, and its value is invisible to any
-evaluation that does not include an adversary. This is the sharper form of the readiness
-argument: a corpus can expose every field a policy names and still be unable to
-distinguish a sound policy from an unsound one.
-
-\begin{table}[t]
-\centering
-\caption{Trace-field ablation on AgentDojo banking. Levels are cumulative; ``poison
-flip'' is the structured-line evasion rate of \S\ref{sec:prov}. R1 and R2 differ only
-under attack.}
-\label{tab:ablation}
-\renewcommand{\arraystretch}{1.05}
-\setlength{\tabcolsep}{4pt}
-\footnotesize
-\begin{tabular}{llccc}
-\toprule
-Level & policy class & detect & BFR & flip \\
-\midrule
-R0 action only        & typed-action O1--O5   & $79.2\%$ & $44.0\%$ & n/a \\
-R1 $+$ recipient id   & recipient-bound       & $70.0\%$ & $24.0\%$ & $94\%$ \\
-R2 $+$ bound provenance & poison-resistant    & $70.0\%$ & $24.0\%$ & $\mathbf{0\%}$ \\
-\midrule
-R3 $+$ approval binding & approval-bound      & \multicolumn{3}{c}{unevaluable: $0$ approvals in $1545$ banking runs} \\
-R4 $+$ timestamps/state & metric, transition  & \multicolumn{3}{c}{unevaluable: $0$ timestamped messages} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{Benchmark readiness for history-dependent enforcement: fraction of
-runs/records exposing each field. Real timestamps, structured state transitions, and
-reversibility typing are absent from all three (call-order only).}
-\label{tab:score}
-\renewcommand{\arraystretch}{1.1}
-\setlength{\tabcolsep}{5pt}
-\small
-\begin{tabular}{lccc}
-\toprule
-Field & AgentDojo & STAC & R-Judge \\
-\midrule
-explicit approval      & $0\%$    & $1.2\%$  & $0.2\%$  \\
-recipient/payee id     & $38.8\%$ & $58.4\%$ & $5.8\%$  \\
-object id              & $36.4\%$ & $34.2\%$ & $47.3\%$ \\
-user confirmation      & $4.6\%$  & $16.4\%$ & $0\%$    \\
-real timestamps        & none     & none     & none     \\
-structured state       & none     & none     & none     \\
-reversibility typing   & none     & none     & none     \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{A minimal trace schema} We therefore propose a minimal enforcement-ready
-schema: twelve fields per event: \texttt{timestamp}, \texttt{actor}, \texttt{tool},
-\texttt{action}, \texttt{object}, \texttt{recipient}, \texttt{source},
-\texttt{approval\_id}, \texttt{session\_id}, \texttt{state\_before},
-\texttt{state\_after}, \texttt{trust\_domain}. Current benchmarks supply the middle
-group (tool/action, partially object/recipient) but none of wall-clock
-\texttt{timestamp}, \texttt{approval\_id}, \texttt{session\_id}, the state pair, or
-\texttt{trust\_domain}: the fields the timed policies (\S\ref{sec:cps}) and the
-hardened provenance spec (\S\ref{sec:prov}) require. Cheap to emit but absent
-everywhere, they are the concrete obstacle to evaluating history-dependent agent
-enforcement.
 
 % ============================================================================
 \section{Discussion and Conclusion}
@@ -1142,11 +1145,9 @@ ourselves: one is a different decision procedure, and one is proved correct.
 \paragraph{Artifact availability} All evaluation scripts are pure-stdlib Python under
 \texttt{agent-rv-impl/}; together with the MonPoly signature/log/formula files for the
 STAC, building, IoT and timed studies they will be released as supplementary material
-%% TODO camera-ready: the paper is no longer anonymous, so this must name a real,
-%% resolvable repository. github.com/nikos-kekatos/formal-rv-tool-using-llm-agents
-%% is still PRIVATE as of 2026-08-26 -- make it public and insert the URL, or drop
-%% the clause. Do not ship "anonymous public repository" in a signed paper.
-(and a public repository), so the full pipeline is
+(and the public repository
+\url{https://github.com/nikos-kekatos/formal-rv-tool-using-llm-agents}), so the full
+pipeline is
 reproducible against the public dataset releases named above.
 
 \paragraph{AgentDojo selection and unflagged successful-attack fraction} Runs are read
