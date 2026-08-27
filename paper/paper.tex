@@ -143,7 +143,7 @@ history-dependent enforcement, which we quantify across the three corpora and an
 a twelve-field enforcement-ready trace schema.
 
 The value of MFOTL becomes clear with \emph{data-parametric} policies: payee-provenance
-and external-recipient obligations substantially reduce benign firing while preserving
+and external-recipient obligations reduce benign firing while preserving
 most detection. We then show that the provenance signal is itself attackable: one
 planted structured line defeats the check on $94$--$99\%$ of the runs it would otherwise
 flag (deceiving no model, only the monitor), and that binding provenance to the lookup
@@ -203,7 +203,7 @@ what the trace \emph{records} as on what the specification language can \emph{ex
 On the corpora the community ships, generic temporal obligations collapse into
 risky-action typing, because approvals, timestamps and state transitions are largely
 absent; a keyword rule set would reach the same verdicts. Where relational or timing
-context \emph{is} available, MFOTL expresses genuinely more discriminating policies, and
+context \emph{is} available, MFOTL expresses more discriminating policies, and
 those policies then depend on trace content an attacker can write into. Provenance
 integrity and benchmark instrumentation are therefore not side conditions but
 prerequisites for history-dependent agent enforcement. That is the argument this paper
@@ -219,7 +219,7 @@ makes, and each contribution below is a step in it.
 \item \textbf{An empirical characterisation of when formal RV adds value.} Generic
       obligations achieve substantial attack coverage but largely collapse to
       typed-action detection on existing corpora. Where relational or timing context is
-      available, data-parametric and metric MFOTL policies produce genuinely
+      available, data-parametric and metric MFOTL policies produce
       history-dependent verdicts and improve discrimination over action-only checking
       (\S\ref{sec:results}--\S\ref{sec:gap}).
 \item \textbf{The assurance conditions for history-dependent enforcement.} We show that
@@ -411,7 +411,7 @@ precisely the class of error a substring canonicaliser invites and precisely wha
 \label{sec:results}
 
 We report the generic obligations first, then the parametric ones. The contrast between
-the two is the point: the generic layer establishes how much of the recorded attack
+the two matters: the generic layer establishes how much of the recorded attack
 surface typed-action checking reaches at all, and the parametric layer is where a verdict
 starts to depend on the trace's history.
 
@@ -644,7 +644,7 @@ prior-state condition, which a \emph{stateless} per-call predicate cannot decide
 and which MFOTL states declaratively instead of leaving to bespoke stateful code.
 
 % ============================================================================
-\section{Threats to the Verdict: Canonicalisation and Provenance}
+\section{Threats to Verdict Validity}
 \label{sec:canon}
 
 A verdict is only meaningful if the two things it rests on can be trusted: the typing
@@ -719,7 +719,7 @@ Re-running the same four perturbations against this hardened predicate
 fall from $94.0\%$ to $0.0\%$ on banking and $99.0\%$ to $0.0\%$ on workspace: at
 \emph{no} cost: detection ($403/576$ banking, $203/518$ workspace) and benign firing
 ($6/25$, $5/46$) are unchanged to the run. The fix is not a precision/robustness
-trade-off; the naive predicate was simply reading a field it had no warrant to trust. We
+trade-off; the naive predicate was reading a field it had no warrant to trust. We
 claim this for the tested attack family only: an attacker who can forge a matching
 lookup call, or compromise the tool being queried, is outside its reach.
 
@@ -747,8 +747,10 @@ workspace ($203$ flagged) & structured        & $99.0\%$ & $\mathbf{0.0\%}$ \\
                           & reformatted       & $0.0\%$  & $0.0\%$ \\
 \bottomrule
 \end{tabular}
-\end{table} Provenance integrity is a first-class requirement for agent
-RV, not a canonicalisation detail.
+\end{table}
+
+Provenance integrity is therefore a requirement on the trace, not a detail of
+canonicalisation.
 
 % ============================================================================
 \section{Benchmark Readiness for History-Dependent Agent Enforcement}
@@ -788,7 +790,7 @@ its log has, so an enforcement-ready corpus is a claim about the \emph{interacti
 protocol} as much as about the schema.
 
 \paragraph{Why the approvals are absent} The natural objection is that we search for
-approvals by \emph{tool name} and may simply be looking in the wrong place. We therefore
+approvals by \emph{tool name} and may be looking in the wrong place. We therefore
 looked everywhere, and the attrition is itself the result. Two structural facts explain
 it. AgentDojo is \emph{single-turn}: exactly one user message per run
 ($6899/6899$), stating a task up front, after which the agent executes autonomously. An
@@ -813,7 +815,7 @@ fields cumulatively on AgentDojo banking and asking, at each level, which policy
 remains evaluable and how well it discriminates (Table~\ref{tab:ablation}). Two results
 stand out. First, the levels the corpora \emph{do} support are exactly the ones that buy
 little: recipient identity lifts $\mathrm{LR^+}$ from $1.80$ to $2.92$, and then the
-approval- and timing-dependent levels are simply unevaluable: \emph{zero}
+approval- and timing-dependent levels are unevaluable: \emph{zero}
 approval-typed calls and \emph{zero} timestamped messages across $1545$ runs. Second, and
 less obviously, R1 and R2 are \emph{observationally identical} on clean traces: same
 detection, same benign firing, same $\mathrm{LR^+}$. They separate only under attack, at
@@ -884,11 +886,11 @@ enforcement.
 
 % ============================================================================
 
-\subsection{What the schema would unlock: timed CPS/IoT policies}
+\subsection{Timed CPS/IoT policies: evaluability under the proposed schema}
 \label{sec:cps}
 
 This is a proof of \emph{applicability} of MFOTL/MonPoly to CPS/IoT policies,
-not a broad security validation on CPS/IoT deployments. We give three evidence points,
+not a broad security validation on CPS/IoT deployments. Agentic components are already being proposed for such settings, together with tamper-evident evidence trails~\cite{resilagent2026}, which is what makes the trace-integrity question of \S\ref{sec:canon} concrete rather than hypothetical. We give three evidence points,
 all evaluated verbatim by MonPoly: \emph{timed} (metric) actuation policies, a
 multi-instance building trace, and a real (small) IoT subset.
 
@@ -963,21 +965,20 @@ clears once a prior consent is present: a verdict flip on real IoT data the gene
 \section{Discussion and Conclusion}
 \label{sec:concl}
 
-\paragraph{Positioning} Table~\ref{tab:matrix} (appendix) contrasts the paradigms
-\emph{as demonstrated in the cited work and its evaluated configurations}, not as a
-fundamental-impossibility claim. AgentDojo~\cite{agentdojo2024},
-AgentBench~\cite{agentbench2024} and ToolEmu~\cite{toolemu2023} \emph{evaluate} agents;
-the guardrails they benchmark are, as reported, per-call or rule-based.
-AgentSpec~\cite{agentspec2026} has a formal rule semantics and some history-aware rules
-($\circ$), so a determined encoding could reach further than the cells show. Formal RV
-combines trace-level scope, formal temporal semantics, data-parametric provenance, and
-offline evaluability in \emph{one} declarative substrate, not that the others
-provably cannot.
+\paragraph{Positioning} What formal RV adds is the combination: trace-level scope,
+formal temporal semantics, data-parametric provenance and offline evaluability in
+\emph{one} declarative substrate. The comparison is with what the cited systems were
+shown to do, not with what they could in principle express.
+AgentDojo~\cite{agentdojo2024}, AgentBench~\cite{agentbench2024} and
+ToolEmu~\cite{toolemu2023} \emph{evaluate} agents, and the guardrails they benchmark are,
+as reported, per-call or rule-based. AgentSpec~\cite{agentspec2026} has a formal rule
+semantics and some history-aware rules ($\circ$), so a determined encoding could reach
+further than Table~\ref{tab:matrix} shows; that table records evaluated configurations,
+not impossibility.
 
 \paragraph{Limitations} We measure firing on recorded trajectories, not live-agent
 prevention; an in-loop shield addresses a different question (agent adaptation after
-enforcement) outside our scope, and one we pursue separately with a digital-twin-in-the-loop
-harness~\cite{mesasdtloop2026}. Generic specs have a high BFR ($29.3\%$), and the
+enforcement) outside our scope. Generic specs have a high BFR ($29.3\%$), and the
 parametric refinements that reduce it are evaluated for banking and workspace only.
 STAC lacks preconditions ($6/483$ chains by tool name; \S\ref{sec:gap}), so its generic obligations reduce to
 typed-action detection; the metric power of MFOTL is exercised in the CPS/IoT study
